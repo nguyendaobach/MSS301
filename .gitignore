@@ -1,0 +1,56 @@
+############################
+# Build output
+############################
+target/
+build/
+out/
+.gradle/
+.mvn/
+
+############################
+# IDE
+############################
+*.iml
+.idea/
+.vscode/
+*.ipr
+*.iws
+
+############################
+# Logs & Temp
+############################
+*.log
+logs/
+log/
+*.pid
+*.seed
+*.gz
+
+############################
+# OS-specific
+############################
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+############################
+# Dependencies / cache
+############################
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+############################
+# Docker / env
+############################
+.env
+*.env
+docker-data/
+docker-compose.override.yml
+
+############################
+# Config (local only)
+############################
+application-local.yml
+application-dev.yml
