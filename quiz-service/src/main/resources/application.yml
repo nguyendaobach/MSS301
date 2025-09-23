@@ -1,0 +1,12 @@
+spring:
+ application:
+  name: quiz-service
+ datasource:
+  driver-class-name: org.postgresql.Driver
+  url: jdbc:postgresql://ep-nameless-lab-adw0km8z-pooler.c-2.us-east-1.aws.neon.tech/neondb
+  username: neondb_owner
+  password: npg_pRiqO9omz1Iw
+ jpa:
+  hibernate:
+   ddl-auto: create-drop
+  show-sql: true
