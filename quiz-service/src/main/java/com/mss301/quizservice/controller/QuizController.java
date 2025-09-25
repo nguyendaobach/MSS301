@@ -5,7 +5,10 @@ import com.mss301.quizservice.dto.request.QuizRequest;
 import com.mss301.quizservice.dto.response.QuizAttemptResponse;
 import com.mss301.quizservice.dto.response.QuizResponse;
 import com.mss301.quizservice.service.QuizService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -123,13 +126,20 @@ public class QuizController {
     }
 
     // ------------------- UPLOAD PDF -------------------
-    @PostMapping("/{quizId}/upload")
+    @Operation(summary = "Upload PDF for a quiz")
+    @PostMapping(
+            value = "/{quizId}/upload",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
     public ApiResponse<String> uploadQuizPdf(
             @PathVariable String quizId,
+            @Parameter(description = "PDF file to upload")
             @RequestParam("file") MultipartFile file) {
         return ApiResponse.<String>builder()
                 .result(quizService.uploadQuizPdf(quizId, file))
                 .message("PDF uploaded successfully")
                 .build();
     }
+
+
 }
