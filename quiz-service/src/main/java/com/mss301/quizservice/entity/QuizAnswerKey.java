@@ -20,7 +20,7 @@ public class QuizAnswerKey {
 
     @OneToOne
     @JoinColumn(name = "quiz_id", nullable = false, unique = true)
-    Quizzes quiz;
+    Quiz quiz;
 
 
     @ElementCollection

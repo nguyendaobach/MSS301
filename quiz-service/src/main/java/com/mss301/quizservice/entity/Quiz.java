@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-public class Quizzes {
+public class Quiz {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String quizId;
