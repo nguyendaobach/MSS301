@@ -20,7 +20,7 @@ public class QuizAttemptAnswer {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quiz_attempt_id", nullable = false)
-    QuizAttempts quizAttempt;
+    QuizAttempt quizAttempt;
 
     @ElementCollection
     @CollectionTable(

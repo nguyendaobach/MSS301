@@ -1,5 +1,6 @@
 package com.mss301.quizservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -26,7 +27,7 @@ public class Quiz {
     Timestamp  createdDate;
     Integer duration;
     Double price;
-    @OneToMany(mappedBy = "quizAttemptId", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<QuizAttempts> attempts = new ArrayList<>();
-
+    @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<QuizAttempt> attempts = new ArrayList<>();
 }

@@ -3,6 +3,7 @@ package com.mss301.quizservice.service;
 import com.mss301.quizservice.dto.request.QuizRequest;
 import com.mss301.quizservice.dto.response.QuizAttemptResponse;
 import com.mss301.quizservice.dto.response.QuizResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,10 @@ public interface QuizService {
     QuizAttemptResponse getAttemptDetail(String attemptId);
 
     List<QuizAttemptResponse> getUserAttempts(String userId);
+
+    //upload file
+    String uploadQuizPdf(String quizId, MultipartFile file);
+
 
 
 

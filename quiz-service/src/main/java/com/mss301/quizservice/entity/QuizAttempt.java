@@ -1,5 +1,6 @@
 package com.mss301.quizservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -14,8 +15,8 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-public class QuizAttempts {
-    enum Status {
+public class QuizAttempt {
+    public enum Status {
         IN_PROGRESS,
         COMPLETED,
     }
@@ -23,6 +24,10 @@ public class QuizAttempts {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String quizAttemptId;
+    @ManyToOne
+    @JoinColumn(name = "quiz_id")
+    @JsonBackReference
+    private Quiz quiz;
     String userId;
     Timestamp startedAt;
     Timestamp completedAt;

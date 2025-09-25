@@ -14,6 +14,6 @@ public class SwaggerConfig {
                 .info(new Info()
                         .title("Quiz Service API")
                         .description("Quiz Service APIs")
-                        .version("1.0"));
+                        .version("3.0"));
     }
 }

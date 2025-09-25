@@ -4,12 +4,16 @@ import com.mss301.quizservice.dto.request.QuizRequest;
 import com.mss301.quizservice.dto.response.QuizAttemptResponse;
 import com.mss301.quizservice.dto.response.QuizResponse;
 import com.mss301.quizservice.entity.Quiz;
+import com.mss301.quizservice.entity.QuizAnswerKey;
+import com.mss301.quizservice.entity.QuizAttempt;
+import com.mss301.quizservice.entity.QuizAttemptAnswer;
 import com.mss301.quizservice.exception.AppException;
 import com.mss301.quizservice.exception.ErrorCode;
+import com.mss301.quizservice.mapper.QuizAttemptMapper;
 import com.mss301.quizservice.mapper.QuizMapper;
 import com.mss301.quizservice.repository.QuizAnswerKeyRepository;
-import com.mss301.quizservice.repository.QuizAttemptsAnswerRepository;
-import com.mss301.quizservice.repository.QuizAttemptsRepository;
+import com.mss301.quizservice.repository.QuizAttemptAnswerRepository;
+import com.mss301.quizservice.repository.QuizAttemptRepository;
 import com.mss301.quizservice.repository.QuizRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +24,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -31,9 +39,11 @@ import java.util.Map;
 public class QuizServiceImpl implements QuizService {
     QuizRepository quizRepository;
     QuizAnswerKeyRepository quizAnswerKeyRepository;
-    QuizAttemptsRepository quizAttemptsRepository;
-    QuizAttemptsAnswerRepository quizAttemptsAnswerRepository;
+    QuizAttemptRepository quizAttemptRepository;
+    QuizAttemptAnswerRepository quizAttemptAnswerRepository;
     QuizMapper quizMapper;
+    CloudinaryService cloudinaryService;
+    QuizAttemptMapper quizAttemptMapper;
 
 
     @Override
@@ -101,31 +111,118 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public Map<Integer, String> setAnswerKey(String quizId, Map<Integer, String> answers) {
-        return Map.of();
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new AppException(ErrorCode.QUIZ_NOT_FOUND));
+
+        QuizAnswerKey quizAnswerKey = quizAnswerKeyRepository.findByQuiz(quiz)
+                .orElse(new QuizAnswerKey());
+
+        quizAnswerKey.setQuiz(quiz);
+        quizAnswerKey.setAnswers(answers);
+
+        quizAnswerKeyRepository.save(quizAnswerKey);
+
+        return quizAnswerKey.getAnswers();
     }
 
     @Override
     public Map<Integer, String> getAnswerKey(String quizId) {
-        return Map.of();
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new AppException(ErrorCode.QUIZ_NOT_FOUND));
+
+        QuizAnswerKey quizAnswerKey = quizAnswerKeyRepository.findByQuiz(quiz)
+                .orElseThrow(() -> new AppException(ErrorCode.ANSWER_KEY_NOT_FOUND));
+
+        return quizAnswerKey.getAnswers();
     }
+
 
     @Override
     public QuizAttemptResponse startAttempt(String quizId, String userId) {
-        return null;
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new AppException(ErrorCode.QUIZ_NOT_FOUND));
+
+        QuizAttempt attempt = new QuizAttempt();
+        attempt.setQuiz(quiz);
+        attempt.setUserId(userId);
+        attempt.setStatus(QuizAttempt.Status.IN_PROGRESS);
+        attempt.setStartedAt(Timestamp.valueOf(LocalDateTime.now()));
+
+        QuizAttempt saved = quizAttemptRepository.save(attempt);
+
+        return quizAttemptMapper.toResponse(saved);
     }
+
 
     @Override
     public QuizAttemptResponse submitAttempt(String quizId, String attemptId, Map<Integer, String> answers) {
-        return null;
+        QuizAttempt attempt = quizAttemptRepository.findById(attemptId)
+                .orElseThrow(() -> new AppException(ErrorCode.ATTEMPT_NOT_FOUND));
+
+        if (!attempt.getQuiz().getQuizId().equals(quizId)) {
+            throw new AppException(ErrorCode.INVALID_QUIZ_ATTEMPT);
+        }
+
+        QuizAttemptAnswer quizAttemptAnswer = quizAttemptAnswerRepository.findById(attemptId)
+                .orElseThrow(() -> new AppException(ErrorCode.ATTEMPT_NOT_FOUND));
+        quizAttemptAnswer.setAnswers(answers);
+        quizAttemptAnswerRepository.save(quizAttemptAnswer);
+        attempt.setCompletedAt(Timestamp.valueOf(LocalDateTime.now()));
+        attempt.setStatus(QuizAttempt.Status.COMPLETED);
+
+        // chấm điểm
+        QuizAnswerKey answerKey = quizAnswerKeyRepository.findByQuiz(attempt.getQuiz())
+                .orElseThrow(() -> new AppException(ErrorCode.ANSWER_KEY_NOT_FOUND));
+
+        int correctCount = 0;
+        for (Map.Entry<Integer, String> entry : answers.entrySet()) {
+            String correct = answerKey.getAnswers().get(entry.getKey());
+            if (correct != null && correct.equals(entry.getValue())) {
+                correctCount++;
+            }
+        }
+
+        int totalQuestions = answerKey.getAnswers().size();
+        double score = 0.0;
+        if (totalQuestions > 0) {
+            score = ((double) correctCount / totalQuestions) * 10.0;
+        }
+
+        attempt.setScore(score);
+
+        QuizAttempt saved = quizAttemptRepository.save(attempt);
+        return quizAttemptMapper.toResponse(saved);
     }
+
+
 
     @Override
     public QuizAttemptResponse getAttemptDetail(String attemptId) {
-        return null;
+        QuizAttempt attempt = quizAttemptRepository.findById(attemptId)
+                .orElseThrow(() -> new AppException(ErrorCode.ATTEMPT_NOT_FOUND));
+
+        return quizAttemptMapper.toResponse(attempt);
     }
+
 
     @Override
     public List<QuizAttemptResponse> getUserAttempts(String userId) {
-        return List.of();
+        List<QuizAttempt> attempts = quizAttemptRepository.findByUserId(userId);
+        return attempts.stream()
+                .map(quizAttemptMapper::toResponse)
+                .toList();
     }
+
+    @Override
+    public String uploadQuizPdf(String quizId, MultipartFile file) {
+        String url = cloudinaryService.uploadFile(file);
+
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new AppException(ErrorCode.QUIZ_NOT_FOUND));
+        quiz.setPdfUrl(url);
+        quizRepository.save(quiz);
+
+        return url;
+    }
+
 }

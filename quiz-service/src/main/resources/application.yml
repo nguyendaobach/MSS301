@@ -8,7 +8,7 @@ spring:
   password: npg_pRiqO9omz1Iw
  jpa:
   hibernate:
-   ddl-auto: create-drop
+   ddl-auto: none
   show-sql: true
 server:
  port: 8080
@@ -16,11 +16,6 @@ cloudinary:
   cloud-name: doghrqfdd
   api-key: 813574374714532
   api-secret: p2QpYz1aeff2NATc_O0O0CnndDY
-springdoc:
- api-docs:
-  path: /api-docs
- swagger-ui:
-  path: /swagger-ui
 
 
 

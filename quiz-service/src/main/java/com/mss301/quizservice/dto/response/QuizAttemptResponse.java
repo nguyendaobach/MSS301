@@ -17,8 +17,6 @@ public class QuizAttemptResponse {
     Timestamp startedAt;
     Timestamp completedAt;
     Double score;
-    String status; // from enum (IN_PROGRESS, COMPLETED)
-
-    // Nested answer details
+    String status;
     List<QuizAttemptAnswerResponse> answers;
 }
