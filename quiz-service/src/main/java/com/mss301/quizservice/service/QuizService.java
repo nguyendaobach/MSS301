@@ -19,6 +19,8 @@ public interface QuizService {
     // for Key
     Map<Integer, String> setAnswerKey(String quizId, Map<Integer, String> answers);
     Map<Integer, String> getAnswerKey(String quizId);
+    String getAnswerUrl(String quizId);
+    String setAnswerUrl(String quizId, MultipartFile file);
 
     //for attempts
     QuizAttemptResponse startAttempt(String quizId, String userId);

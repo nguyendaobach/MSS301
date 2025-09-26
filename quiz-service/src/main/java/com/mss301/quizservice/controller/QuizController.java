@@ -92,6 +92,30 @@ public class QuizController {
                 .build();
     }
 
+    @Operation(summary = "Get answer key URL by quizId")
+    @GetMapping("/{quizId}/answer-key/url")
+    public ApiResponse<String> getAnswerUrl(@PathVariable String quizId) {
+        return ApiResponse.<String>builder()
+                .result(quizService.getAnswerUrl(quizId))
+                .message("Get answer key URL successfully")
+                .build();
+    }
+
+    @Operation(summary = "Upload and set answer key file for quiz")
+    @PostMapping(
+            value = "/{quizId}/answer-key/url",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ApiResponse<String> setAnswerUrl(
+            @PathVariable String quizId,
+            @RequestPart("file") MultipartFile file
+    ) {
+        return ApiResponse.<String>builder()
+                .result(quizService.setAnswerUrl(quizId, file))
+                .message("Set answer key URL successfully")
+                .build();
+    }
+
     // ------------------- ATTEMPTS -------------------
     @PostMapping("/{quizId}/attempts")
     public ApiResponse<QuizAttemptResponse> startAttempt(

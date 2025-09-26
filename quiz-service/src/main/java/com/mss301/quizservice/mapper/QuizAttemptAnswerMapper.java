@@ -18,7 +18,6 @@ public abstract class QuizAttemptAnswerMapper {
     @Autowired
     protected QuizAnswerKeyRepository answerKeyRepository;
 
-    // Map từ QuizAttempt → List<QuizAttemptAnswerResponse>
     public List<QuizAttemptAnswerResponse> toResponseList(QuizAttempt attempt) {
         if (attempt.getAnswers() == null || attempt.getAnswers().isEmpty()) return List.of();
 

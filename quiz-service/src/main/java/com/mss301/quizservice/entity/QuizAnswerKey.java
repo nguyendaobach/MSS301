@@ -22,6 +22,9 @@ public class QuizAnswerKey {
     @JoinColumn(name = "quiz_id", nullable = false, unique = true)
     Quiz quiz;
 
+    @Column(name = "answer_key_url", columnDefinition = "TEXT")
+    String answerKeyUrl;
+
 
     @ElementCollection
     @CollectionTable(

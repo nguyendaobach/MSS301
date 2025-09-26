@@ -31,6 +31,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -79,7 +80,7 @@ public class QuizServiceImpl implements QuizService {
             throw new AppException(ErrorCode.QUIZ_NOT_FOUND);
         }
         Quiz quiz = quizRepository.findById(quizId)
-                .orElseThrow(() ->  new AppException(ErrorCode.QUIZ_NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.QUIZ_NOT_FOUND));
         return quizMapper.toQuizResponse(quiz);
     }
 
@@ -98,17 +99,17 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public QuizResponse updateQuizzes(QuizRequest quizRequest) {
-       if(quizRepository.findById(quizRequest.getId()).isEmpty()) {
-           throw new AppException(ErrorCode.QUIZ_NOT_FOUND);
-       }
-       Quiz quiz = quizRepository.save(quizMapper.toQuiz(quizRequest));
-       log.info("Updated quizzes for quiz with id: " + quizRequest.getId());
-       return  quizMapper.toQuizResponse(quiz);
+        if (quizRepository.findById(quizRequest.getId()).isEmpty()) {
+            throw new AppException(ErrorCode.QUIZ_NOT_FOUND);
+        }
+        Quiz quiz = quizRepository.save(quizMapper.toQuiz(quizRequest));
+        log.info("Updated quizzes for quiz with id: " + quizRequest.getId());
+        return quizMapper.toQuizResponse(quiz);
     }
 
     @Override
     public void deleteQuiz(String quizId) {
-        if(quizRepository.findById(quizId).isEmpty()) {
+        if (quizRepository.findById(quizId).isEmpty()) {
             throw new AppException(ErrorCode.QUIZ_NOT_FOUND);
         }
         quizRepository.deleteById(quizId);
@@ -142,6 +143,31 @@ public class QuizServiceImpl implements QuizService {
         return quizAnswerKey.getAnswers();
     }
 
+    @Override
+    public String getAnswerUrl(String quizId) {
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new AppException(ErrorCode.QUIZ_NOT_FOUND));
+        Optional<QuizAnswerKey> quizAnswerKey = quizAnswerKeyRepository.findByQuiz(quiz);
+        if (quizAnswerKey.isEmpty()) {
+            throw new AppException(ErrorCode.ANSWER_KEY_NOT_FOUND);
+        }
+        return quizAnswerKey.get().getAnswerKeyUrl();
+    }
+
+    @Override
+    public String setAnswerUrl(String quizId, MultipartFile file) {
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new AppException(ErrorCode.QUIZ_NOT_FOUND));
+
+        QuizAnswerKey quizAnswerKey = quizAnswerKeyRepository.findByQuiz(quiz)
+                .orElse(new QuizAnswerKey());
+        String answerKeyUrl = uploadQuizPdf(file);
+        quizAnswerKey.setQuiz(quiz);
+        quizAnswerKey.setAnswerKeyUrl(answerKeyUrl);
+        quizAnswerKeyRepository.save(quizAnswerKey);
+        return quizAnswerKey.getAnswerKeyUrl();
+    }
+
 
     @Override
     public QuizAttemptResponse startAttempt(String quizId, String userId) {
@@ -170,7 +196,7 @@ public class QuizServiceImpl implements QuizService {
         }
 
         QuizAttemptAnswer quizAttemptAnswer = quizAttemptAnswerRepository.findById(attemptId)
-                .orElse(new QuizAttemptAnswer(null, attempt,answers));
+                .orElse(new QuizAttemptAnswer(null, attempt, answers));
         quizAttemptAnswerRepository.save(quizAttemptAnswer);
         attempt.setCompletedAt(Timestamp.valueOf(LocalDateTime.now()));
         attempt.setStatus(QuizAttempt.Status.COMPLETED);
@@ -178,26 +204,31 @@ public class QuizServiceImpl implements QuizService {
         QuizAnswerKey answerKey = quizAnswerKeyRepository.findByQuiz(attempt.getQuiz())
                 .orElseThrow(() -> new AppException(ErrorCode.ANSWER_KEY_NOT_FOUND));
 
-        int correctCount = 0;
-        for (Map.Entry<Integer, String> entry : answers.entrySet()) {
-            String correct = answerKey.getAnswers().get(entry.getKey());
-            if (correct != null && correct.equals(entry.getValue())) {
-                correctCount++;
+        if (answerKey.getAnswerKeyUrl().isEmpty()) {
+            int correctCount = 0;
+            for (Map.Entry<Integer, String> entry : answers.entrySet()) {
+                String correct = answerKey.getAnswers().get(entry.getKey());
+                if (correct != null && correct.equals(entry.getValue())) {
+                    correctCount++;
+                }
             }
-        }
 
-        int totalQuestions = answerKey.getAnswers().size();
-        double score = 0.0;
-        if (totalQuestions > 0) {
-            score = ((double) correctCount / totalQuestions) * 10.0;
-        }
+            int totalQuestions = answerKey.getAnswers().size();
+            double score = 0.0;
+            if (totalQuestions > 0) {
+                score = ((double) correctCount / totalQuestions) * 10.0;
+            }
 
-        attempt.setScore(score);
+            attempt.setScore(score);
+        } else {
+            attempt.setScore(null);
+        }
 
         QuizAttempt saved = quizAttemptRepository.save(attempt);
-        return quizAttemptMapper.toResponse(saved);
+        QuizAttemptResponse response = quizAttemptMapper.toResponse(saved);
+        response.setAnswerKeyUrl(answerKey.getAnswerKeyUrl());
+        return response;
     }
-
 
 
     @Override

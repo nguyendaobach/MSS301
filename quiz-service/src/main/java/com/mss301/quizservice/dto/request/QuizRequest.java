@@ -15,6 +15,7 @@ public class QuizRequest {
         String description;
         String category;
         String pdfUrl;
+        String answerKeyUrl;
         String createdBy;
         Timestamp createdDate;
         Integer duration;

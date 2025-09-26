@@ -17,6 +17,7 @@ public class QuizAttemptResponse {
     Timestamp startedAt;
     Timestamp completedAt;
     Double score;
+    String answerKeyUrl;
     String status;
     List<QuizAttemptAnswerResponse> answers;
 }
