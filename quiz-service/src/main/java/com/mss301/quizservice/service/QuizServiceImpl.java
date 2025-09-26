@@ -84,10 +84,16 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public QuizResponse createQuizzes(QuizRequest quizRequest) {
-       Quiz quiz = quizRepository.save(quizMapper.toQuiz(quizRequest));
-       log.info("Created quizzes for quiz with id: " + quizRequest.getId());
-       return quizMapper.toQuizResponse(quiz);
+    public QuizResponse createQuizzes(QuizRequest quizRequest, MultipartFile file) {
+        String pdfUrl = uploadQuizPdf(file);
+
+        Quiz quiz = quizMapper.toQuiz(quizRequest);
+        quiz.setPdfUrl(pdfUrl);
+        quiz = quizRepository.save(quiz);
+
+        log.info("Created quiz with id: {}", quiz.getQuizId());
+
+        return quizMapper.toQuizResponse(quiz);
     }
 
     @Override
@@ -164,13 +170,11 @@ public class QuizServiceImpl implements QuizService {
         }
 
         QuizAttemptAnswer quizAttemptAnswer = quizAttemptAnswerRepository.findById(attemptId)
-                .orElseThrow(() -> new AppException(ErrorCode.ATTEMPT_NOT_FOUND));
-        quizAttemptAnswer.setAnswers(answers);
+                .orElse(new QuizAttemptAnswer(null, attempt,answers));
         quizAttemptAnswerRepository.save(quizAttemptAnswer);
         attempt.setCompletedAt(Timestamp.valueOf(LocalDateTime.now()));
         attempt.setStatus(QuizAttempt.Status.COMPLETED);
 
-        // chấm điểm
         QuizAnswerKey answerKey = quizAnswerKeyRepository.findByQuiz(attempt.getQuiz())
                 .orElseThrow(() -> new AppException(ErrorCode.ANSWER_KEY_NOT_FOUND));
 
@@ -214,15 +218,8 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public String uploadQuizPdf(String quizId, MultipartFile file) {
-        String url = cloudinaryService.uploadFile(file);
-
-        Quiz quiz = quizRepository.findById(quizId)
-                .orElseThrow(() -> new AppException(ErrorCode.QUIZ_NOT_FOUND));
-        quiz.setPdfUrl(url);
-        quizRepository.save(quiz);
-
-        return url;
+    public String uploadQuizPdf(MultipartFile file) {
+        return cloudinaryService.uploadFile(file);
     }
 
 }

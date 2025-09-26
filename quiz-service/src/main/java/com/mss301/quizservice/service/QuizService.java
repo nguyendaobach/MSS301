@@ -12,7 +12,7 @@ public interface QuizService {
     // for Quiz
     List<QuizResponse> getAllQuizzes(String category, int page, int size);
     QuizResponse getQuizById( String quizId);
-    QuizResponse createQuizzes(QuizRequest quizRequest);
+    QuizResponse createQuizzes(QuizRequest quizRequest, MultipartFile file);
     QuizResponse updateQuizzes(QuizRequest quizRequest);
     void deleteQuiz(String quizId);
 
@@ -30,7 +30,7 @@ public interface QuizService {
     List<QuizAttemptResponse> getUserAttempts(String userId);
 
     //upload file
-    String uploadQuizPdf(String quizId, MultipartFile file);
+    String uploadQuizPdf(MultipartFile file);
 
 
 

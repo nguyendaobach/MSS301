@@ -7,6 +7,7 @@ import com.mss301.quizservice.dto.response.QuizResponse;
 import com.mss301.quizservice.service.QuizService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -42,10 +43,14 @@ public class QuizController {
                 .build();
     }
 
-    @PostMapping
-    public ApiResponse<QuizResponse> createQuiz(@RequestBody QuizRequest quizRequest) {
+    @Operation(summary = "Upload PDF for a quiz")
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<QuizResponse> createQuiz(@RequestPart("quizRequest")  @Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
+                                                    QuizRequest quizRequest,
+                                                @Parameter(description = "PDF file to upload")
+                                                @RequestPart("file") MultipartFile file) {
         return ApiResponse.<QuizResponse>builder()
-                .result(quizService.createQuizzes(quizRequest))
+                .result(quizService.createQuizzes(quizRequest, file))
                 .message("Quiz created successfully")
                 .build();
     }
@@ -128,15 +133,14 @@ public class QuizController {
     // ------------------- UPLOAD PDF -------------------
     @Operation(summary = "Upload PDF for a quiz")
     @PostMapping(
-            value = "/{quizId}/upload",
+            value = "/upload",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public ApiResponse<String> uploadQuizPdf(
-            @PathVariable String quizId,
             @Parameter(description = "PDF file to upload")
             @RequestParam("file") MultipartFile file) {
         return ApiResponse.<String>builder()
-                .result(quizService.uploadQuizPdf(quizId, file))
+                .result(quizService.uploadQuizPdf(file))
                 .message("PDF uploaded successfully")
                 .build();
     }

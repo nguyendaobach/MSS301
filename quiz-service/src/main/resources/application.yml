@@ -6,6 +6,10 @@ spring:
   url: jdbc:postgresql://ep-nameless-lab-adw0km8z-pooler.c-2.us-east-1.aws.neon.tech/neondb
   username: neondb_owner
   password: npg_pRiqO9omz1Iw
+ servlet:
+  multipart:
+   max-file-size: 20MB
+   max-request-size: 20MB
  jpa:
   hibernate:
    ddl-auto: none

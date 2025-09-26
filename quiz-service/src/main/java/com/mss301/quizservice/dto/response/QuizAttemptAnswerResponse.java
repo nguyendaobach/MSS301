@@ -12,5 +12,6 @@ import lombok.experimental.FieldDefaults;
 public class QuizAttemptAnswerResponse {
     String questionId;
     String selectedOption;
+    String answer;
     Boolean isCorrect;
 }
