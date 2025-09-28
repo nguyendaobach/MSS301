@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/quiz")
+@RequestMapping("/quiz")
 @RequiredArgsConstructor
 public class QuizController {
 
@@ -25,13 +25,13 @@ public class QuizController {
 
     // ------------------- QUIZ CRUD -------------------
     @GetMapping
-    public ApiResponse<List<QuizResponse>> getAllQuizzes(
+    public ApiResponse<List<QuizResponse>> searchQuiz(
             @RequestParam(required = false) String category,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return ApiResponse.<List<QuizResponse>>builder()
-                .result(quizService.getAllQuizzes(category, page, size))
-                .message("Get all quizzes successfully")
+                .result(quizService.search(category, page, size))
+                .message("Get quizzes successfully")
                 .build();
     }
 
@@ -92,30 +92,6 @@ public class QuizController {
                 .build();
     }
 
-    @Operation(summary = "Get answer key URL by quizId")
-    @GetMapping("/{quizId}/answer-key/url")
-    public ApiResponse<String> getAnswerUrl(@PathVariable String quizId) {
-        return ApiResponse.<String>builder()
-                .result(quizService.getAnswerUrl(quizId))
-                .message("Get answer key URL successfully")
-                .build();
-    }
-
-    @Operation(summary = "Upload and set answer key file for quiz")
-    @PostMapping(
-            value = "/{quizId}/answer-key/url",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
-    public ApiResponse<String> setAnswerUrl(
-            @PathVariable String quizId,
-            @RequestPart("file") MultipartFile file
-    ) {
-        return ApiResponse.<String>builder()
-                .result(quizService.setAnswerUrl(quizId, file))
-                .message("Set answer key URL successfully")
-                .build();
-    }
-
     // ------------------- ATTEMPTS -------------------
     @PostMapping("/{quizId}/attempts")
     public ApiResponse<QuizAttemptResponse> startAttempt(
@@ -151,21 +127,6 @@ public class QuizController {
         return ApiResponse.<List<QuizAttemptResponse>>builder()
                 .result(quizService.getUserAttempts(userId))
                 .message("Get user attempts successfully")
-                .build();
-    }
-
-    // ------------------- UPLOAD PDF -------------------
-    @Operation(summary = "Upload PDF for a quiz")
-    @PostMapping(
-            value = "/upload",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
-    public ApiResponse<String> uploadQuizPdf(
-            @Parameter(description = "PDF file to upload")
-            @RequestParam("file") MultipartFile file) {
-        return ApiResponse.<String>builder()
-                .result(quizService.uploadQuizPdf(file))
-                .message("PDF uploaded successfully")
                 .build();
     }
 

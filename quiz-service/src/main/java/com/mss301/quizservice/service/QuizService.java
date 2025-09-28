@@ -9,18 +9,20 @@ import java.util.List;
 import java.util.Map;
 
 public interface QuizService {
+    //search and filter
+    List<QuizResponse> search(String category, int page, int size);
+
     // for Quiz
-    List<QuizResponse> getAllQuizzes(String category, int page, int size);
     QuizResponse getQuizById( String quizId);
     QuizResponse createQuizzes(QuizRequest quizRequest, MultipartFile file);
     QuizResponse updateQuizzes(QuizRequest quizRequest);
     void deleteQuiz(String quizId);
 
+
+
     // for Key
     Map<Integer, String> setAnswerKey(String quizId, Map<Integer, String> answers);
     Map<Integer, String> getAnswerKey(String quizId);
-    String getAnswerUrl(String quizId);
-    String setAnswerUrl(String quizId, MultipartFile file);
 
     //for attempts
     QuizAttemptResponse startAttempt(String quizId, String userId);
@@ -31,8 +33,6 @@ public interface QuizService {
 
     List<QuizAttemptResponse> getUserAttempts(String userId);
 
-    //upload file
-    String uploadQuizPdf(MultipartFile file);
 
 
 

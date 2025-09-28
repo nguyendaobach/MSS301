@@ -16,6 +16,8 @@ spring:
   show-sql: true
 server:
  port: 8080
+ servlet:
+  context-path: /api/v1
 cloudinary:
   cloud-name: doghrqfdd
   api-key: 813574374714532

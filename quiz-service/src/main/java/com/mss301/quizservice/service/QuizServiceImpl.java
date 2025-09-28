@@ -43,12 +43,12 @@ public class QuizServiceImpl implements QuizService {
     QuizAttemptRepository quizAttemptRepository;
     QuizAttemptAnswerRepository quizAttemptAnswerRepository;
     QuizMapper quizMapper;
-    CloudinaryService cloudinaryService;
+    FileService fileService;
     QuizAttemptMapper quizAttemptMapper;
 
 
     @Override
-    public List<QuizResponse> getAllQuizzes(String category, int page, int size) {
+    public List<QuizResponse> search(String category, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
 
         Page<Quiz> quizzesPage;
@@ -58,17 +58,15 @@ public class QuizServiceImpl implements QuizService {
         } else {
             quizzesPage = quizRepository.findAll(pageable);
         }
+        log.info("Found {} quizzes", quizzesPage.getTotalElements());
 
         return quizzesPage.getContent().stream()
                 .map(quiz -> new QuizResponse(
                         quiz.getName(),
                         quiz.getDescription(),
                         quiz.getCategory(),
-                        quiz.getPdfUrl(),
-                        quiz.getCreatedBy(),
-                        quiz.getCreatedDate(),
-                        quiz.getDuration(),
-                        quiz.getPrice()
+                        quiz.getUrl(),
+                        quiz.getDuration()
                 ))
                 .toList();
     }
@@ -86,13 +84,13 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public QuizResponse createQuizzes(QuizRequest quizRequest, MultipartFile file) {
-        String pdfUrl = uploadQuizPdf(file);
+        String pdfUrl = fileService.uploadPdf(file);
 
         Quiz quiz = quizMapper.toQuiz(quizRequest);
-        quiz.setPdfUrl(pdfUrl);
+        quiz.setUrl(pdfUrl);
         quiz = quizRepository.save(quiz);
 
-        log.info("Created quiz with id: {}", quiz.getQuizId());
+        log.info("Created quiz with id: {}", quiz.getId());
 
         return quizMapper.toQuizResponse(quiz);
     }
@@ -143,31 +141,6 @@ public class QuizServiceImpl implements QuizService {
         return quizAnswerKey.getAnswers();
     }
 
-    @Override
-    public String getAnswerUrl(String quizId) {
-        Quiz quiz = quizRepository.findById(quizId)
-                .orElseThrow(() -> new AppException(ErrorCode.QUIZ_NOT_FOUND));
-        Optional<QuizAnswerKey> quizAnswerKey = quizAnswerKeyRepository.findByQuiz(quiz);
-        if (quizAnswerKey.isEmpty()) {
-            throw new AppException(ErrorCode.ANSWER_KEY_NOT_FOUND);
-        }
-        return quizAnswerKey.get().getAnswerKeyUrl();
-    }
-
-    @Override
-    public String setAnswerUrl(String quizId, MultipartFile file) {
-        Quiz quiz = quizRepository.findById(quizId)
-                .orElseThrow(() -> new AppException(ErrorCode.QUIZ_NOT_FOUND));
-
-        QuizAnswerKey quizAnswerKey = quizAnswerKeyRepository.findByQuiz(quiz)
-                .orElse(new QuizAnswerKey());
-        String answerKeyUrl = uploadQuizPdf(file);
-        quizAnswerKey.setQuiz(quiz);
-        quizAnswerKey.setAnswerKeyUrl(answerKeyUrl);
-        quizAnswerKeyRepository.save(quizAnswerKey);
-        return quizAnswerKey.getAnswerKeyUrl();
-    }
-
 
     @Override
     public QuizAttemptResponse startAttempt(String quizId, String userId) {
@@ -191,7 +164,7 @@ public class QuizServiceImpl implements QuizService {
         QuizAttempt attempt = quizAttemptRepository.findById(attemptId)
                 .orElseThrow(() -> new AppException(ErrorCode.ATTEMPT_NOT_FOUND));
 
-        if (!attempt.getQuiz().getQuizId().equals(quizId)) {
+        if (!attempt.getQuiz().getId().equals(quizId)) {
             throw new AppException(ErrorCode.INVALID_QUIZ_ATTEMPT);
         }
 
@@ -204,7 +177,6 @@ public class QuizServiceImpl implements QuizService {
         QuizAnswerKey answerKey = quizAnswerKeyRepository.findByQuiz(attempt.getQuiz())
                 .orElseThrow(() -> new AppException(ErrorCode.ANSWER_KEY_NOT_FOUND));
 
-        if (answerKey.getAnswerKeyUrl().isEmpty()) {
             int correctCount = 0;
             for (Map.Entry<Integer, String> entry : answers.entrySet()) {
                 String correct = answerKey.getAnswers().get(entry.getKey());
@@ -220,14 +192,9 @@ public class QuizServiceImpl implements QuizService {
             }
 
             attempt.setScore(score);
-        } else {
-            attempt.setScore(null);
-        }
 
         QuizAttempt saved = quizAttemptRepository.save(attempt);
-        QuizAttemptResponse response = quizAttemptMapper.toResponse(saved);
-        response.setAnswerKeyUrl(answerKey.getAnswerKeyUrl());
-        return response;
+        return quizAttemptMapper.toResponse(saved);
     }
 
 
@@ -246,11 +213,6 @@ public class QuizServiceImpl implements QuizService {
         return attempts.stream()
                 .map(quizAttemptMapper::toResponse)
                 .toList();
-    }
-
-    @Override
-    public String uploadQuizPdf(MultipartFile file) {
-        return cloudinaryService.uploadFile(file);
     }
 
 }

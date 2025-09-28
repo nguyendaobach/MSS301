@@ -1,12 +1,14 @@
 package com.mss301.quizservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,9 +19,10 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
-public class Quiz extends Content {
-    Integer duration;
-    @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
+public class Document extends Content{
+    Double price;
+    Integer downloadCount = 0;
+    @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    List<QuizAttempt> attempts = new ArrayList<>();
+    private List<DocumentReview> reviews = new ArrayList<>();
 }

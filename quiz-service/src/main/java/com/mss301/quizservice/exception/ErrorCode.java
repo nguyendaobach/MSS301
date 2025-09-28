@@ -12,7 +12,8 @@ public enum ErrorCode {
     QUIZ_ATTEMPT_NOT_FOUND(1003, "Quiz attempt not found", HttpStatus.NOT_FOUND),
     ANSWER_KEY_NOT_FOUND(1004, "Answer key not found", HttpStatus.NOT_FOUND),
     ATTEMPT_NOT_FOUND(1005, "Attempt not found", HttpStatus.NOT_FOUND),
-    INVALID_QUIZ_ATTEMPT(1006, "Invalid quiz attempt", HttpStatus.BAD_REQUEST)
+    INVALID_QUIZ_ATTEMPT(1006, "Invalid quiz attempt", HttpStatus.BAD_REQUEST),
+    DOCUMENT_NOT_FOUND(1007, "Document not found", HttpStatus.NOT_FOUND),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
