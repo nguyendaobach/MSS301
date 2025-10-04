@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: mindmapservice
+  jpa:
+    database: "POSTGRESQL"
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: "org.hibernate.dialect.PostgreSQLDialect"
+    hibernate:
+      ddl-auto: update
+
+  ai:
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        options:
+          model: deepseek-r1:7b
+
+  datasource:
+    driverClassName: "org.postgresql.Driver"
+    url: "jdbc:postgresql://localhost:5432/Mss-Mindmap"
+    username: "postgres"
+    password: "12345678"
+
