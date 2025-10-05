@@ -1,4 +1,4 @@
-package mss.mindmap.servicediscovery;
+package com.mss301.eureka_server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,10 +6,10 @@ import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 
 @SpringBootApplication
 @EnableEurekaServer
-public class ServicediscoveryApplication {
+public class EurekaServerApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ServicediscoveryApplication.class, args);
+		SpringApplication.run(EurekaServerApplication.class, args);
 	}
 
 }

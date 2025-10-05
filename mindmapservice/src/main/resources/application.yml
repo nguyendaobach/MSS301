@@ -1,3 +1,5 @@
+server:
+  port: 8084
 spring:
   application:
     name: mindmapservice
@@ -17,9 +19,18 @@ spring:
         options:
           model: deepseek-r1:7b
 
+#  datasource:
+#    driverClassName: "org.postgresql.Driver"
+#    url: "jdbc:postgresql://localhost:5432/Mss-Mindmap"
+#    username: "postgres"
+#    password: "12345678"
   datasource:
     driverClassName: "org.postgresql.Driver"
-    url: "jdbc:postgresql://localhost:5432/Mss-Mindmap"
+    url: "jdbc:postgresql://localhost:5432/test"
     username: "postgres"
-    password: "12345678"
+    password: "12345"
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:123456@localhost:8761/eureka
 

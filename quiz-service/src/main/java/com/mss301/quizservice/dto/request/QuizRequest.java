@@ -10,11 +10,9 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class QuizRequest {
-        String id;
         String name;
         String description;
         String category;
-        String createdBy;
         Timestamp createdDate;
         Integer duration;
         Double price;

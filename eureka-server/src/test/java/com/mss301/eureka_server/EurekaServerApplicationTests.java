@@ -1,10 +1,10 @@
-package mss.mindmap.servicediscovery;
+package com.mss301.eureka_server;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ServicediscoveryApplicationTests {
+class EurekaServerApplicationTests {
 
 	@Test
 	void contextLoads() {

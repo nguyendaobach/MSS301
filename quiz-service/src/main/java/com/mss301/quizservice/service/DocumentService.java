@@ -10,8 +10,8 @@ import java.util.List;
 
 public interface DocumentService {
     List<DocumentResponse> search(String category, int page, int size);
-    DocumentResponse createDocument(DocumentRequest request, MultipartFile file);
-    DocumentResponse updateDocument(String id, DocumentRequest request);
+    DocumentResponse createDocument(DocumentRequest request, String createdBy,  MultipartFile file);
+    DocumentResponse updateDocument(String id,String createdBy, DocumentRequest request);
     void deleteDocument(String id);
     void incrementDownloadCount(String documentId);
     int getDownloadCount(String documentId);

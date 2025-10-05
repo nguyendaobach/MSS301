@@ -14,7 +14,6 @@ public class DocumentRequest {
     String name;
     String description;
     String category;
-    String createdBy;
     Timestamp createdDate;
     String url;
     Double price;

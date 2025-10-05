@@ -15,7 +15,7 @@ spring:
    ddl-auto: update
   show-sql: true
 server:
- port: 8080
+ port: 8081
  servlet:
   context-path: /api/v1
 cloudinary:
@@ -23,6 +23,10 @@ cloudinary:
   api-key: 813574374714532
   api-secret: p2QpYz1aeff2NATc_O0O0CnndDY
 
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:123456@localhost:8761/eureka
 
 
 

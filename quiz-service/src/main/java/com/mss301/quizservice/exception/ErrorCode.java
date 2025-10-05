@@ -14,6 +14,9 @@ public enum ErrorCode {
     ATTEMPT_NOT_FOUND(1005, "Attempt not found", HttpStatus.NOT_FOUND),
     INVALID_QUIZ_ATTEMPT(1006, "Invalid quiz attempt", HttpStatus.BAD_REQUEST),
     DOCUMENT_NOT_FOUND(1007, "Document not found", HttpStatus.NOT_FOUND),
+    MISSING_ID_REQUESTHEADER(2001, "Missing ID header", HttpStatus.UNAUTHORIZED),
+    MISSING_EMAIL_REQUESTHEADER(2002, "Missing email header", HttpStatus.UNAUTHORIZED),
+
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

@@ -83,11 +83,12 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public QuizResponse createQuizzes(QuizRequest quizRequest, MultipartFile file) {
+    public QuizResponse createQuizzes(QuizRequest quizRequest, String createdBy, MultipartFile file) {
         String pdfUrl = fileService.uploadPdf(file);
 
         Quiz quiz = quizMapper.toQuiz(quizRequest);
         quiz.setUrl(pdfUrl);
+        quiz.setCreatedBy(createdBy);
         quiz = quizRepository.save(quiz);
 
         log.info("Created quiz with id: {}", quiz.getId());
@@ -96,13 +97,15 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public QuizResponse updateQuizzes(QuizRequest quizRequest) {
-        if (quizRepository.findById(quizRequest.getId()).isEmpty()) {
+    public QuizResponse updateQuizzes(String id, String updatedBy, QuizRequest quizRequest) {
+        Optional<Quiz> quiz = quizRepository.findById(id);
+        if (quiz.isEmpty()) {
             throw new AppException(ErrorCode.QUIZ_NOT_FOUND);
         }
-        Quiz quiz = quizRepository.save(quizMapper.toQuiz(quizRequest));
-        log.info("Updated quizzes for quiz with id: " + quizRequest.getId());
-        return quizMapper.toQuizResponse(quiz);
+        quiz.get().setCreatedBy(updatedBy);
+        quizRepository.save(quizMapper.toQuiz(quizRequest));
+        log.info("Updated quizzes for quiz with id: " +quiz.get().getId() );
+        return quizMapper.toQuizResponse(quiz.get());
     }
 
     @Override

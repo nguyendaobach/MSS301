@@ -5,9 +5,11 @@ import com.mss301.quizservice.dto.request.QuizRequest;
 import com.mss301.quizservice.dto.response.QuizAttemptResponse;
 import com.mss301.quizservice.dto.response.QuizResponse;
 import com.mss301.quizservice.service.QuizService;
+import com.mss301.quizservice.util.HeaderExtractor;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -48,19 +50,21 @@ public class QuizController {
     public ApiResponse<QuizResponse> createQuiz(@RequestPart("quizRequest")  @Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
                                                     QuizRequest quizRequest,
                                                 @Parameter(description = "PDF file to upload")
-                                                @RequestPart("file") MultipartFile file) {
+                                                @RequestPart("file") MultipartFile file,
+                                                HttpServletRequest httpRequest) {
+        String userId = HeaderExtractor.getUserId(httpRequest);
+
         return ApiResponse.<QuizResponse>builder()
-                .result(quizService.createQuizzes(quizRequest, file))
+                .result(quizService.createQuizzes(quizRequest, userId, file))
                 .message("Quiz created successfully")
                 .build();
     }
 
     @PutMapping("/{quizId}")
-    public ApiResponse<QuizResponse> updateQuiz(@PathVariable String quizId,
-                                                @RequestBody QuizRequest quizRequest) {
-        quizRequest.setId(quizId);
+    public ApiResponse<QuizResponse> updateQuiz(@RequestBody QuizRequest quizRequest, @PathVariable String quizId, HttpServletRequest httpRequest) {
+        String userId = HeaderExtractor.getUserId(httpRequest);
         return ApiResponse.<QuizResponse>builder()
-                .result(quizService.updateQuizzes(quizRequest))
+                .result(quizService.updateQuizzes(quizId, userId, quizRequest))
                 .message("Quiz updated successfully")
                 .build();
     }
@@ -96,7 +100,8 @@ public class QuizController {
     @PostMapping("/{quizId}/attempts")
     public ApiResponse<QuizAttemptResponse> startAttempt(
             @PathVariable String quizId,
-            @RequestParam String userId) {
+           HttpServletRequest httpServletRequest ) {
+        String userId = HeaderExtractor.getUserId(httpServletRequest);
         return ApiResponse.<QuizAttemptResponse>builder()
                 .result(quizService.startAttempt(quizId, userId))
                 .message("Attempt started successfully")
@@ -122,8 +127,9 @@ public class QuizController {
                 .build();
     }
 
-    @GetMapping("/user/{userId}/attempts")
-    public ApiResponse<List<QuizAttemptResponse>> getUserAttempts(@PathVariable String userId) {
+    @GetMapping("/attempts")
+    public ApiResponse<List<QuizAttemptResponse>> getUserAttempts(HttpServletRequest httpServletRequest) {
+        String userId = HeaderExtractor.getUserId(httpServletRequest);
         return ApiResponse.<List<QuizAttemptResponse>>builder()
                 .result(quizService.getUserAttempts(userId))
                 .message("Get user attempts successfully")

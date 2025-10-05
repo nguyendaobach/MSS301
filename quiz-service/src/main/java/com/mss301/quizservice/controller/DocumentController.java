@@ -6,9 +6,11 @@ import com.mss301.quizservice.dto.request.DocumentReviewRequest;
 import com.mss301.quizservice.dto.response.DocumentResponse;
 import com.mss301.quizservice.entity.DocumentReview;
 import com.mss301.quizservice.service.DocumentService;
+import com.mss301.quizservice.util.HeaderExtractor;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -41,10 +43,12 @@ public class DocumentController {
             @RequestPart("document")  @Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
             DocumentRequest request,
             @Parameter(description = "PDF file to upload")
-            @RequestPart("file") MultipartFile file
+            @RequestPart("file") MultipartFile file,
+            HttpServletRequest httpRequest
     ) {
+        String userId = HeaderExtractor.getUserId(httpRequest);
         return ApiResponse.<DocumentResponse>builder()
-                .result(documentService.createDocument(request, file))
+                .result(documentService.createDocument(request, userId, file))
                 .message("Document created successfully")
                 .build();
     }
@@ -53,10 +57,13 @@ public class DocumentController {
     @PutMapping("/{id}")
     public ApiResponse<DocumentResponse> updateDocument(
             @PathVariable String id,
-            @RequestBody DocumentRequest request
+            @RequestBody DocumentRequest request,
+            HttpServletRequest httpRequest
     ) {
+        String userId = HeaderExtractor.getUserId(httpRequest);
+
         return ApiResponse.<DocumentResponse>builder()
-                .result(documentService.updateDocument(id, request))
+                .result(documentService.updateDocument(id,userId, request))
                 .message("Document updated successfully")
                 .build();
     }

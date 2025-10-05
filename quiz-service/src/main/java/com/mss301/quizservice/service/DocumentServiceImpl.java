@@ -61,9 +61,10 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public DocumentResponse createDocument(DocumentRequest request, MultipartFile file) {
+    public DocumentResponse createDocument(DocumentRequest request, String id, MultipartFile file) {
         String pdfUrl = fileService.uploadPdf(file);
         Document document = documentMapper.toDocument(request);
+        document.setCreatedBy(id);
         document.setUrl(pdfUrl);
         document.setDownloadCount(0);
         document.setReviews(new ArrayList<>());
@@ -71,9 +72,10 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public DocumentResponse updateDocument(String id, DocumentRequest request) {
+    public DocumentResponse updateDocument(String id, String createdBy, DocumentRequest request) {
         Document existing = documentRepository.findById(id).orElseThrow();
         existing.setName(request.getName());
+        existing.setCreatedBy(createdBy);
         existing.setDescription(request.getDescription());
         existing.setCategory(request.getCategory());
         existing.setUrl(request.getUrl());

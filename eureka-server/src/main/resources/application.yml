@@ -1,0 +1,13 @@
+eureka:
+  client:
+    fetch-registry: 'false'
+    register-with-eureka: 'false'
+spring:
+  application:
+    name: eureka-server
+  security:
+    user:
+      name: eureka
+      password: 123456
+server:
+  port: '8761'
