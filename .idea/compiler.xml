@@ -46,6 +46,15 @@
         </processorPath>
         <module name="mindmapservice" />
       </profile>
+      <profile name="Annotation profile for ownership-service" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.40/lombok-1.18.40.jar" />
+        </processorPath>
+        <module name="ownership-service" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="eureka-service" target="17" />
@@ -58,6 +67,7 @@
       <module name="gateway" options="-parameters" />
       <module name="identity-service" options="-parameters" />
       <module name="mindmapservice" options="-parameters" />
+      <module name="ownership-service" options="-parameters" />
       <module name="quiz-service" options="-parameters -Amapstruct.suppressGeneratorTimestamp=true -Amapstruct.defaultComponentModel=spring -Amapstruct.verbose=true" />
     </option>
   </component>

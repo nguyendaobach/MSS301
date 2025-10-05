@@ -11,6 +11,7 @@
         <option value="$PROJECT_DIR$/identity-service/pom.xml" />
         <option value="$PROJECT_DIR$/mindmapservice/pom.xml" />
         <option value="$PROJECT_DIR$/eureka-server/pom.xml" />
+        <option value="$PROJECT_DIR$/ownership-service/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

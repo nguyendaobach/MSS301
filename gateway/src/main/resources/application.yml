@@ -9,6 +9,7 @@ app:
     premium: /premium
     mindmap: /mindmap
     identity: /identity
+    ownership: /ownership
 
 spring:
   application:
@@ -60,6 +61,14 @@ spring:
                 - Path=${app.api-prefix}${app.service-prefix.identity}/**
               filters:
                 - RewritePath=${app.api-prefix}${app.service-prefix.identity}/(?<segment>.*), /${segment}
+
+            # 8806
+            - id: ownership-service
+              uri: lb://ownership-service
+              predicates:
+                - Path=${app.api-prefix}/ownership/**
+              filters:
+                - RewritePath=${app.api-prefix}/ownership/(?<segment>.*), /${segment}
 springdoc:
   swagger-ui:
     urls:
@@ -71,6 +80,9 @@ springdoc:
 
       - name: identity-service
         url: /identity-service/v3/api-docs
+
+      - name: ownership-service
+        url: /ownership-service/v3/api-docs
 eureka:
   client:
     service-url:
