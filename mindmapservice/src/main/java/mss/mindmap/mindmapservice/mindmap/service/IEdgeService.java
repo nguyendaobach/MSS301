@@ -10,4 +10,8 @@ import java.util.UUID;
 
 public interface IEdgeService {
     Optional<List<Edges>> getEdgesByMindMap(UUID mindMapUuid);
+
+    void createEdge(EdgeDto edgeDto);
+    void updateEdge(UUID edgeId, EdgeDto edgeDto);
+    void deleteNode(UUID edgeId);
 }

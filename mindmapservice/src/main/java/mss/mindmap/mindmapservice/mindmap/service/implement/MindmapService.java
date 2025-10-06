@@ -1,11 +1,14 @@
 package mss.mindmap.mindmapservice.mindmap.service.implement;
 
 import io.swagger.v3.oas.annotations.servers.Server;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import mss.mindmap.mindmapservice.mindmap.dto.request.ChangeEvent;
 import mss.mindmap.mindmapservice.mindmap.dto.request.MindmapDto;
 import mss.mindmap.mindmapservice.mindmap.entity.Mindmap;
 import mss.mindmap.mindmapservice.mindmap.mapper.MindmapMapper;
 import mss.mindmap.mindmapservice.mindmap.repository.IMindmapRepository;
+import mss.mindmap.mindmapservice.mindmap.repository.NodeRepository;
 import mss.mindmap.mindmapservice.mindmap.service.IMindmapService;
 import org.mapstruct.factory.Mappers;
 import org.springframework.data.crossstore.ChangeSetPersister;
@@ -20,6 +23,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MindmapService implements IMindmapService {
     private final IMindmapRepository mindmapRepository;
+
+    private final MindmapMapper mapper;
     private final MindmapMapper mindmapMapper ;
 
 
@@ -69,5 +74,5 @@ public class MindmapService implements IMindmapService {
         return mindmapMapper.toDto(exist.get());
     }
 
-    
+
 }

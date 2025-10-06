@@ -2,7 +2,9 @@ package mss.mindmap.mindmapservice.mindmap.controller;
 
 import lombok.RequiredArgsConstructor;
 import mss.mindmap.mindmapservice.mindmap.dto.ApiResponse;
+import mss.mindmap.mindmapservice.mindmap.dto.request.ChangeRequestDto;
 import mss.mindmap.mindmapservice.mindmap.dto.request.MindmapDto;
+import mss.mindmap.mindmapservice.mindmap.service.IEventService;
 import mss.mindmap.mindmapservice.mindmap.service.IMindmapService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,7 @@ public class MindMapController {
 
 
     private final IMindmapService mindmapService;
+    private final IEventService eventService;
 
     @PostMapping()
     public ApiResponse<MindmapDto> createMindmap(@RequestBody MindmapDto mindmapDto) {
@@ -35,8 +38,18 @@ public class MindMapController {
 
         return ApiResponse.<MindmapDto>builder()
                 .code(HttpStatus.OK.value())
-                .message("mindmap created")
+                .message("")
                 .data(result)
+                .build();
+    }
+
+    @PatchMapping("/{id}/event")
+    public ApiResponse<MindmapDto> changeEvent (@PathVariable UUID id, @RequestBody ChangeRequestDto changeRequestDto) {
+        eventService.applyChange(changeRequestDto, id);
+
+        return ApiResponse.<MindmapDto>builder()
+                .code(HttpStatus.OK.value())
+                .message("success")
                 .build();
     }
 

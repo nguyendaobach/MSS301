@@ -7,8 +7,5 @@ public enum ChangeType {
     REMOVE_NODE,
     ADD_EDGE,
     UPDATE_EDGE,
-    MOVE_EDGE,
     REMOVE_EDGE,
-
-
 }
