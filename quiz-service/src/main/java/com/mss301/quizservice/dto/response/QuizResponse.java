@@ -17,4 +17,5 @@ public class QuizResponse {
     String category;
     String url;
     Integer duration;
+    Integer numQuestion;
 }

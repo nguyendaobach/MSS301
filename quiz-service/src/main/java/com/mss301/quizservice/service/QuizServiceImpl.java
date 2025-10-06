@@ -66,7 +66,8 @@ public class QuizServiceImpl implements QuizService {
                         quiz.getDescription(),
                         quiz.getCategory(),
                         quiz.getUrl(),
-                        quiz.getDuration()
+                        quiz.getDuration(),
+                        quiz.getNumQuestion()
                 ))
                 .toList();
     }
