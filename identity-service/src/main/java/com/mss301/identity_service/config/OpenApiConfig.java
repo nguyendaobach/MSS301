@@ -16,25 +16,12 @@ import org.springframework.context.annotation.Configuration;
         info = @Info(
                 title = "Identity Service API",
                 version = "1.0",
-                description = "API quản lý xác thực và phân quyền người dùng",
-                contact = @Contact(
-                        name = "Bookteria Team",
-                        email = "bookteria.contact@gmail.com",
-                        url = "https://bookteria.com"
-                ),
-                license = @License(
-                        name = "MIT License",
-                        url = "https://opensource.org/licenses/MIT"
-                )
+                description = "API quản lý xác thực và phân quyền người dùng"
         ),
         servers = {
                 @Server(
-                        url = "http://localhost:8080",
+                        url = "http://localhost:8085",
                         description = "Local Development Server"
-                ),
-                @Server(
-                        url = "https://api.bookteria.com",
-                        description = "Production Server"
                 )
         },
         security = {
