@@ -129,6 +129,10 @@ public class AuthController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
+    @GetMapping("hello")
+    public String hello() {
+        return "Hellowword";
+    }
 
 
 }
