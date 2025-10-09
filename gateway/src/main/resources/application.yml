@@ -53,6 +53,11 @@ spring:
                 - Path=${app.api-prefix}${app.service-prefix.mindmap}/**
               filters:
                 - RewritePath=${app.api-prefix}${app.service-prefix.mindmap}/(?<segment>.*), /${segment}
+#                - name: RequestRateLimiter
+#                  args:
+#                    redis-rate-limiter.replenishRate: 10 # 10 request mỗi giây
+#                    redis-rate-limiter.burstCapacity: 20 # Tối đa cho phép 20 request dồn dập
+#                    key-resolver: "#{@userKeyResolver}" # Dùng IP hoặc user ID để phân biệt client
 
             #8805
             - id: identity-service

@@ -1,8 +1,8 @@
+server:
+  port: 8086
 spring:
   application:
     name: ownership-service
-  server:
-    port: 8086
     servlet:
       context-path: /api/v1
   datasource:
@@ -18,3 +18,8 @@ spring:
     console:
       enabled: true
       path: /h2-console
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:123456@localhost:8761/eureka
