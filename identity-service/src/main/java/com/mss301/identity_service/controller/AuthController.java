@@ -29,7 +29,7 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 @Tag(name = "Authentication", description = "API xác thực và đăng ký người dùng")
 public class AuthController {

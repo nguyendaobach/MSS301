@@ -3,6 +3,9 @@ server:
   address: 0.0.0.0
 app:
   api-prefix: /api/v1
+  jwt:
+    secret: gK3jTJtK1e9dWsMLPVojKM+7E1qZ9jMUBhiAJYA6I3SjGFjdzzvIQg6Cq+vQCipm
+    expiration-ms: 86400000
   service-prefix:
     quiz: /quiz
     payment: /payment
@@ -65,7 +68,7 @@ spring:
               predicates:
                 - Path=${app.api-prefix}${app.service-prefix.identity}/**
               filters:
-                - RewritePath=${app.api-prefix}${app.service-prefix.identity}/(?<segment>.*), /api/${segment}
+                - RewritePath=${app.api-prefix}${app.service-prefix.identity}/(?<segment>.*), /${segment}
 
             # 8806
             - id: ownership-service
@@ -75,17 +78,17 @@ spring:
               filters:
                 - RewritePath=${app.api-prefix}/ownership/(?<segment>.*), /${segment}
 springdoc:
+  api-docs:
+    enabled: true
   swagger-ui:
+    enabled: true
     urls:
       - name: quiz-service
         url: /quiz-service/v3/api-docs
-
       - name: mind-map-service
         url: /mindmap-service/v3/api-docs
-
       - name: identity-service
         url: /identity-service/v3/api-docs
-
       - name: ownership-service
         url: /ownership-service/v3/api-docs
 eureka:
