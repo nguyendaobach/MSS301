@@ -15,5 +15,4 @@ public class QuizRequest {
         String category;
         Timestamp createdDate;
         Integer duration;
-        Double price;
 }

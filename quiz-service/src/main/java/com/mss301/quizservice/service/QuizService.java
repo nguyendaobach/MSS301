@@ -14,7 +14,7 @@ public interface QuizService {
 
     // for Quiz
     QuizResponse getQuizById( String quizId);
-    QuizResponse createQuizzes(QuizRequest quizRequest, String createdBy, MultipartFile file);
+    QuizResponse createQuizzes(QuizRequest quizRequest,String createdBy, MultipartFile file);
     QuizResponse updateQuizzes(String id, String createdBy,QuizRequest quizRequest);
     void deleteQuiz(String quizId);
 

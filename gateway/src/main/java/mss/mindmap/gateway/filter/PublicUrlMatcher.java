@@ -10,11 +10,16 @@ import java.util.Set;
 public class PublicUrlMatcher {
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
     private static final Set<String> PUBLIC_EXACT_PATHS = Set.of(
+            //identity
             "/identity/auth/login",
             "/identity/auth/register",
             "/identity/auth/register-with-otp",
             "/identity/auth/verify-otp",
-            "/identity/auth/introspect"
+            "/identity/auth/introspect",
+            //quiz
+            "quiz/quiz/**",
+            "quiz/document/**",
+            "quiz/file/upload"
 
 
 
