@@ -18,4 +18,5 @@ public class QuizResponse {
     String category;
     String url;
     Integer duration;
+    Boolean isFree;
 }
