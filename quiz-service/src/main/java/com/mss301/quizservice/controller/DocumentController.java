@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/document")
+@RequestMapping("/documents")
 @RequiredArgsConstructor
 public class DocumentController {
     private final DocumentService documentService;
