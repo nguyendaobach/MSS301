@@ -19,7 +19,8 @@ import java.util.List;
 @Entity
 public class Quiz extends Content {
     Integer duration;
-    boolean isFree = true;
+    Integer numQuestions;
+    @ManyToOne(fetch = FetchType.LAZY)
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     List<QuizAttempt> attempts = new ArrayList<>();
