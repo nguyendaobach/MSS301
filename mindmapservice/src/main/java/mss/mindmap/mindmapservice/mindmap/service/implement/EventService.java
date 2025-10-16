@@ -24,7 +24,7 @@ public class EventService implements IEventService {
 
 
     @Override
-    @Transactional
+@Transactional
     public void applyChange(ChangeRequestDto changeRequestDto, UUID mapId) {
         for (ChangeEvent event : changeRequestDto.getChanges()) {
             switch (event.type) {
@@ -32,6 +32,7 @@ public class EventService implements IEventService {
                 // ======== NODE ======== //
                 case ADD_NODE -> {
                     NodeDto dto = NodeDto.builder()
+                            .nodeId(event.getNodeId())
                             .label(event.label)
                             .positionX(event.x)
                             .positionY(event.y)
@@ -39,16 +40,17 @@ public class EventService implements IEventService {
                             .build();
                     nodeService.createNode(dto);
                     log.info("ADD_NODE");
+                    break;
                 }
 
                 case UPDATE_NODE -> {
-
                     NodeDto dto = NodeDto.builder()
                             .label(event.label)
                             .positionX(event.x)
                             .positionY(event.y)
                             .build();
                     nodeService.updateNode(event.nodeId, dto);
+                    break;
                 }
 
                 case MOVE_NODE -> {
@@ -59,10 +61,12 @@ public class EventService implements IEventService {
                             .positionY(event.y)
                             .build();
                     nodeService.updateNodePosition(event.nodeId, dto);
+                    break;
                 }
 
                 case REMOVE_NODE -> {
                     nodeService.deleteNode(event.nodeId);
+                    break;
                 }
 
                 // ======== EDGE ======== //
@@ -70,16 +74,18 @@ public class EventService implements IEventService {
                     if (event.sourceNode == null || event.targetNode == null)
                         throw new IllegalArgumentException("ADD_EDGE cần source, target");
                     EdgeDto edgeDto = EdgeDto.builder()
+                            .edgeId(event.edgeId)
                             .sourceNode(event.sourceNode)
                             .targetNode(event.targetNode)
                             .build();
                     edgeService.createEdge(edgeDto);
+                    break;
 
                 }
 
                 case REMOVE_EDGE -> {
                     edgeService.deleteNode(event.edgeId);
-
+                    break;
                 }
 
 //            // ======== MAP ======== //

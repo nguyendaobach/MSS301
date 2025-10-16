@@ -32,4 +32,9 @@ public class LoggingFilter implements GlobalFilter {
                 + ", uri:" + routeUri);
         return chain.filter(exchange);
     }
+//
+//    @Override
+//    public int getOrder() {
+//        return 1;
+//    }
 }

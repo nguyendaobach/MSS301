@@ -1,6 +1,7 @@
 package mss.mindmap.mindmapservice.mindmap.exception;
 
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import lombok.extern.slf4j.Slf4j;
 import mss.mindmap.mindmapservice.mindmap.dto.ApiResponse;
@@ -41,6 +42,18 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
+    }
+
+    @ExceptionHandler(value = EntityNotFoundException.class)
+    ResponseEntity<ApiResponse<?>> EntityNotFoundException(EntityNotFoundException exception) {
+
+        ApiResponse<?> apiResponse = ApiResponse.builder()
+                .message(exception.getMessage())
+                .code(HttpStatus.NOT_FOUND.value())
+                .success(false)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND.value()).body(apiResponse);
     }
 
 
