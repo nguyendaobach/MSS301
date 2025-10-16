@@ -17,9 +17,9 @@ public class PublicUrlMatcher {
             "/identity/auth/verify-otp",
             "/identity/auth/introspect",
             //quiz
-            "quiz/quiz/**",
-            "quiz/document/**",
-            "quiz/file/upload"
+            "/quiz/quizs",
+            "/quiz/documents/**",
+            "/quiz/files/upload"
 
 
 
