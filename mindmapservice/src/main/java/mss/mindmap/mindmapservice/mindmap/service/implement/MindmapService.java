@@ -14,6 +14,7 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,6 +35,9 @@ public class MindmapService implements IMindmapService {
                 .title(mindmapDto.title())
                 .description(mindmapDto.description())
                 .userId(mindmapDto.userId())
+                .status(mindmapDto.status())
+                .visibility(mindmapDto.visibility())
+                .createdAt(OffsetDateTime.now())
                 .build();
         mindmapRepository.save(mindmap);
         MindmapDto response = mindmapMapper.toDto(mindmap);

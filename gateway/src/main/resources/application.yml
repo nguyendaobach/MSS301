@@ -55,7 +55,7 @@ spring:
               predicates:
                 - Path=${app.api-prefix}${app.service-prefix.mindmap}/**
               filters:
-                - RewritePath=${app.api-prefix}${app.service-prefix.mindmap}/(?<segment>.*), /${segment}
+                - RewritePath=${app.api-prefix}${app.service-prefix.mindmap}/(?<segment>.*), /${app.api-prefix}/${segment}
 #                - name: RequestRateLimiter
 #                  args:
 #                    redis-rate-limiter.replenishRate: 10 # 10 request mỗi giây

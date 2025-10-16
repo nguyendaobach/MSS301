@@ -16,6 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class NodeDto {
 
+    private UUID  nodeId;
     private UUID mindmap;
 
     private Integer version;
