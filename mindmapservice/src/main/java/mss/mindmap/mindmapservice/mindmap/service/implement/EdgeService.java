@@ -1,5 +1,6 @@
 package mss.mindmap.mindmapservice.mindmap.service.implement;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import mss.mindmap.mindmapservice.mindmap.dto.request.EdgeDto;
 import mss.mindmap.mindmapservice.mindmap.entity.Edges;
@@ -12,6 +13,7 @@ import mss.mindmap.mindmapservice.mindmap.service.IEdgeService;
 import mss.mindmap.mindmapservice.mindmap.service.INodeService;
 import org.springframework.stereotype.Service;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,20 +28,27 @@ public class EdgeService implements IEdgeService {
 
     @Override
     public Optional<List<Edges>> getEdgesByMindMap(UUID mindMapid) {
-        Mindmap mindmap = mindmapRepository.findById(mindMapid).orElse(null);
+        Mindmap mindmap = mindmapRepository.findById(mindMapid).orElseThrow(() -> new EntityNotFoundException("Mindmap " +mindMapid + " not found"));
         return edgeRepository.findByMindmap(mindmap);
     }
 
     @Override
     public void createEdge(EdgeDto edgeDto) {
-        Nodes sourceNode = nodeRepository.findById(edgeDto.getSourceNode()).orElse(null);
-        Nodes targetNode = nodeRepository.findById(edgeDto.getTargetNode()).orElse(null);
+        try{
+            Nodes sourceNode = nodeRepository.findById(edgeDto.getSourceNode()).orElseThrow(() -> new EntityNotFoundException("Source node not found"));
+            Nodes targetNode = nodeRepository.findById(edgeDto.getTargetNode()).orElseThrow(() -> new EntityNotFoundException("Targe node not found"));
 
-        Edges edges =  Edges.builder()
-                .sourceNode(sourceNode)
-                .targetNode(targetNode)
-                .build();
-        edgeRepository.save(edges);
+            Edges edges =  Edges.builder()
+                    .id(edgeDto.getEdgeId())
+                    .sourceNode(sourceNode)
+                    .targetNode(targetNode)
+                    .createdAt(OffsetDateTime.now())
+                    .build();
+            edgeRepository.save(edges);
+        }catch(Exception e){
+
+        }
+
 
     }
 

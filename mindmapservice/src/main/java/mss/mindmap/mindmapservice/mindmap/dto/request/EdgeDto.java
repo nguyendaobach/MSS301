@@ -13,6 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EdgeDto {
+    private UUID  edgeId;
     private Integer version;
 
     private String label;

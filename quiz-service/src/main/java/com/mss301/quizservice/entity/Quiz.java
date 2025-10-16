@@ -20,7 +20,6 @@ import java.util.List;
 public class Quiz extends Content {
     Integer duration;
     Integer numQuestions;
-    @ManyToOne(fetch = FetchType.LAZY)
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     List<QuizAttempt> attempts = new ArrayList<>();

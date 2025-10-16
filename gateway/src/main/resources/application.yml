@@ -41,12 +41,12 @@ spring:
             maxAge: 3600
       routes:
         # Xử lý URL trùng lặp
-        - id: duplicate-prefix-identity
-          uri: lb://identity-service
-          predicates:
-            - Path=/api/v1/api/v1/auth/**
-          filters:
-            - RewritePath=/api/v1/api/v1/auth/(?<segment>.*), /${segment}
+#        - id: duplicate-prefix-identity
+#          uri: lb://identity-service
+#          predicates:
+#            - Path=/api/v1/api/v1/auth/**
+#          filters:
+#            - RewritePath=/api/v1/api/v1/auth/(?<segment>.*), /${segment}
 
         # 8801
         - id: quiz-service
