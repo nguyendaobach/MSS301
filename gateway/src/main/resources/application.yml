@@ -11,7 +11,7 @@ app:
     payment: /payment
     premium: /premium
     mindmap: /mindmap
-    identity: /auth
+    identity: /identity
     ownership: /ownership
 
 spring:
@@ -19,81 +19,64 @@ spring:
     name: gateway-service
   cloud:
     gateway:
-      globalcors:
-        corsConfigurations:
-          '[/**]':
-            allowedOrigins:
-              - "http://localhost:3000"
-              - "http://localhost:3001"
-              - "http://localhost:5173"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-              - OPTIONS
-            allowedHeaders:
-              - "*"
-            exposedHeaders:
-              - "Authorization"
-              - "Content-Type"
-            allowCredentials: true
-            maxAge: 3600
-      routes:
-        # Xử lý URL trùng lặp
-#        - id: duplicate-prefix-identity
-#          uri: lb://identity-service
-#          predicates:
-#            - Path=/api/v1/api/v1/auth/**
-#          filters:
-#            - RewritePath=/api/v1/api/v1/auth/(?<segment>.*), /${segment}
+      server:
+        webflux:
+          discovery:
+            locator:
+              enabled: true
+              lower-case-service-id: true
+          routes:
+            # 8801
+            - id: quiz-service
+              uri: lb://quiz-service
+              predicates:
+                - Path=${app.api-prefix}${app.service-prefix.quiz}/**
+              filters:
+                - RewritePath=${app.api-prefix}${app.service-prefix.quiz}/(?<segment>.*), /${segment}
 
-        # 8801
-        - id: quiz-service
-          uri: lb://quiz-service
-          predicates:
-            - Path=${app.api-prefix}${app.service-prefix.quiz}/**
-          filters:
-            - RewritePath=${app.api-prefix}${app.service-prefix.quiz}/(?<segment>.*), /${segment}
+            # 8802
+            - id: payment-service
+              uri: lb://payment-service
+              predicates:
+                - Path=${app.api-prefix}${app.service-prefix.payment}/**
+              filters:
+                - StripPrefix=2
+            #8803
+            - id: premium-service
+              uri: lb://premium-service
+              predicates:
+                - Path=${app.api-prefix}${app.service-prefix.premium}/**
+              filters:
+                - RewritePath=${app.api-prefix}${app.service-prefix.premium}/(?<segment>.*), /${segment}
 
-        # 8802
-        - id: payment-service
-          uri: lb://payment-service
-          predicates:
-            - Path=${app.api-prefix}${app.service-prefix.payment}/**
-          filters:
-            - StripPrefix=2
+            # 8804
+            - id: mind-map-service
+              uri: lb://mindmapservice
+              predicates:
+                - Path=${app.api-prefix}${app.service-prefix.mindmap}/**
+              filters:
+                - RewritePath=${app.api-prefix}${app.service-prefix.mindmap}/(?<segment>.*), /${segment}
+            #                - name: RequestRateLimiter
+            #                  args:
+            #                    redis-rate-limiter.replenishRate: 10 # 10 request mỗi giây
+            #                    redis-rate-limiter.burstCapacity: 20 # Tối đa cho phép 20 request dồn dập
+            #                    key-resolver: "#{@userKeyResolver}" # Dùng IP hoặc user ID để phân biệt client
 
-        # 8803
-        - id: premium-service
-          uri: lb://premium-service
-          predicates:
-            - Path=${app.api-prefix}${app.service-prefix.premium}/**
-          filters:
-            - RewritePath=${app.api-prefix}${app.service-prefix.premium}/(?<segment>.*), /${segment}
+            #8805
+            - id: identity-service
+              uri: lb://identity-service
+              predicates:
+                - Path=${app.api-prefix}${app.service-prefix.identity}/**
+              filters:
+                - RewritePath=${app.api-prefix}${app.service-prefix.identity}/(?<segment>.*), /${segment}
 
-        # 8804
-        - id: mind-map-service
-          uri: lb://mindmapservice
-          predicates:
-            - Path=${app.api-prefix}${app.service-prefix.mindmap}/**
-          filters:
-            - RewritePath=${app.api-prefix}${app.service-prefix.mindmap}/(?<segment>.*), /${segment}
-
-        # 8805
-        - id: identity-service
-          uri: lb://identity-service
-          predicates:
-            - Path=${app.api-prefix}${app.service-prefix.identity}/**
-
-        # 8806
-        - id: ownership-service
-          uri: lb://ownership-service
-          predicates:
-            - Path=${app.api-prefix}${app.service-prefix.ownership}/**
-          filters:
-            - RewritePath=${app.api-prefix}${app.service-prefix.ownership}/(?<segment>.*), /${segment}
-
+            # 8806
+            - id: ownership-service
+              uri: lb://ownership-service
+              predicates:
+                - Path=${app.api-prefix}/ownership/**
+              filters:
+                - RewritePath=${app.api-prefix}/ownership/(?<segment>.*), /${segment}
 springdoc:
   api-docs:
     enabled: true
