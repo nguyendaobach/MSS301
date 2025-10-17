@@ -62,6 +62,7 @@ public class QuizServiceImpl implements QuizService {
 
         return quizzesPage.getContent().stream()
                 .map(quiz -> new QuizResponse(
+                        quiz.getId(),
                         quiz.getCreatedBy(),
                         quiz.getName(),
                         quiz.getDescription(),
