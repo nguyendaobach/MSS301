@@ -11,7 +11,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,8 +21,9 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/quiz")
+@RequestMapping("/quizs")
 @RequiredArgsConstructor
+@Slf4j
 public class QuizController {
 
     private final QuizService quizService;
@@ -55,7 +58,7 @@ public class QuizController {
         String userId = HeaderExtractor.getUserId(httpRequest);
 
         return ApiResponse.<QuizResponse>builder()
-                .result(quizService.createQuizzes(quizRequest, userId, file))
+                .result(quizService.createQuizzes(quizRequest, userId,file))
                 .message("Quiz created successfully")
                 .build();
     }

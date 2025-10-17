@@ -62,12 +62,14 @@ public class QuizServiceImpl implements QuizService {
 
         return quizzesPage.getContent().stream()
                 .map(quiz -> new QuizResponse(
+                        quiz.getCreatedBy(),
                         quiz.getName(),
                         quiz.getDescription(),
+                        quiz.getCreatedDate(),
                         quiz.getCategory(),
+                        quiz.getNumQuestions(),
                         quiz.getUrl(),
-                        quiz.getDuration(),
-                        quiz.getNumQuestion()
+                        quiz.getDuration()
                 ))
                 .toList();
     }
@@ -84,7 +86,7 @@ public class QuizServiceImpl implements QuizService {
     }
 
     @Override
-    public QuizResponse createQuizzes(QuizRequest quizRequest, String createdBy, MultipartFile file) {
+    public QuizResponse createQuizzes(QuizRequest quizRequest,String createdBy, MultipartFile file) {
         String pdfUrl = fileService.uploadPdf(file);
 
         Quiz quiz = quizMapper.toQuiz(quizRequest);

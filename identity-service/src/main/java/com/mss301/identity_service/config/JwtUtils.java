@@ -1,11 +1,13 @@
 package com.mss301.identity_service.config;
 
+import com.mss301.identity_service.entity.UserPrinciple;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -26,11 +28,22 @@ public class JwtUtils {
     @Value("${app.jwt.expiration-ms}")
     private int jwtExpirationMs;
 
-    public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
+    public Map<String, Object> getExtraClaims(UserPrinciple  userPrinciple) {
+        Map<String, Object> claims = new HashMap<>();
+
+        claims.put("userId", userPrinciple.getUser().getId().toString());
+        claims.put("roles", userPrinciple.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList());
+        return claims;
     }
 
-    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+
+    public String generateToken(UserPrinciple userDetails) {
+        return generateToken(getExtraClaims(userDetails), userDetails);
+    }
+
+    public String generateToken(Map<String, Object> extraClaims, UserPrinciple userDetails) {
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())

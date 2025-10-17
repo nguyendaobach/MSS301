@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("api/v1/edge")
+@RequestMapping("edge")
 @RequiredArgsConstructor
 public class EdgesController {
     private final IEdgeService edgeService;
@@ -25,8 +25,8 @@ public class EdgesController {
         Optional<List<Edges>> edges = edgeService.getEdgesByMindMap(mindmapId);
 
         return ApiResponse.<Optional<List<Edges>>>builder()
-                .code(HttpStatus.CREATED.value())
-                .message("Edge")
+                .code(HttpStatus.OK.value())
+                .message("Get all Edges")
                 .data(edges)
                 .build();
     }

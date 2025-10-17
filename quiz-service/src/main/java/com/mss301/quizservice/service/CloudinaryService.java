@@ -16,9 +16,29 @@ public class CloudinaryService {
 
     public String uploadFile(MultipartFile file) {
         try {
-            Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(),
-                    ObjectUtils.asMap("resource_type", "auto"));
-            return uploadResult.get("url").toString();
+            String contentType = file.getContentType();
+            String resourceType = "auto";
+
+            if (contentType != null && contentType.equals("application/pdf")) {
+                resourceType = "raw"; // PDF cần upload kiểu raw
+            }
+
+            // ✅ Giữ nguyên tên gốc có đuôi .pdf
+            String originalFilename = file.getOriginalFilename();
+            if (originalFilename == null || originalFilename.isEmpty()) {
+                originalFilename = "file.pdf";
+            }
+
+            Map<?, ?> uploadResult = cloudinary.uploader().upload(
+                    file.getBytes(),
+                    ObjectUtils.asMap(
+                            "resource_type", resourceType,
+                            // 👇 Giữ tên có đuôi .pdf để Cloudinary lưu đúng loại file
+                            "public_id", originalFilename
+                    )
+            );
+
+            return uploadResult.get("secure_url").toString();
         } catch (IOException e) {
             throw new RuntimeException("Upload file to Cloudinary failed", e);
         }

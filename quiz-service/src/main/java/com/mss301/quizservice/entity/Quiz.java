@@ -18,8 +18,8 @@ import java.util.List;
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
 public class Quiz extends Content {
-    Integer numQuestion;
     Integer duration;
+    Integer numQuestions;
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     List<QuizAttempt> attempts = new ArrayList<>();

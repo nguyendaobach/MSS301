@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -13,12 +14,14 @@ import java.util.UUID;
 @Entity
 @Table(name = "mindmap")
 @Data
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Mindmap extends BaseEntity {
 
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(name = "user_id", nullable = false)
     private UUID userId;
@@ -29,7 +32,7 @@ public class Mindmap extends BaseEntity {
     @Column(columnDefinition = "text")
     private String description;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String status = "draft"; // draft | published | archived
 
     @Column(nullable = false)
