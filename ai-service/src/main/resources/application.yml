@@ -1,0 +1,39 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: ai-service
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5433/aiService
+    username: root
+    password: StrongP@ssword123
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      embedding:
+        options:
+          model: text-embedding-3-small
+
+# Custom properties (not under spring)
+vector:
+  service:
+    url: ${VECTOR_SERVICE_URL:http://localhost:8082}
+
+mindmap:
+  rag:
+    top-k: 5
+  llm:
+    model: gpt-4-turbo-preview
