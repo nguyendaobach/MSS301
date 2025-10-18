@@ -12,6 +12,7 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class QuizResponse {
+    String id;
     String createdBy;
     String name;
     String description;
