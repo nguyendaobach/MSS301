@@ -35,7 +35,7 @@ document:
     size: 500
     overlap: 50
 
-logging:
-  level:
-    com.mindmap.document: DEBUG
-    org.springframework: INFO
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:123456@localhost:8761/eureka

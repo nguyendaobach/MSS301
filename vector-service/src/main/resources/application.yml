@@ -31,3 +31,8 @@ openai:
 vector:
     similarity:
         threshold: 0.7
+
+eureka:
+    client:
+        service-url:
+            defaultZone: http://eureka:123456@localhost:8761/eureka
