@@ -19,11 +19,15 @@ public class PublicUrlMatcher {
             //quiz
             "/quiz/quizs",
             "/quiz/documents/**",
-            "/quiz/files/upload"
+            "/quiz/files/upload",
+
+            "/ai/**",
+            "/documents/**",
+            "/vectors/**"
 
 
 
-    );
+            );
     private static final List<String> PUBLIC_WILDCARD_PATTERNS = List.of(
 
     );

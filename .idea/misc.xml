@@ -9,6 +9,10 @@
         <option value="$PROJECT_DIR$/gateway/pom.xml" />
         <option value="$PROJECT_DIR$/identity-service/pom.xml" />
         <option value="$PROJECT_DIR$/mindmapservice/pom.xml" />
+        <option value="$PROJECT_DIR$/ownership-service/pom.xml" />
+        <option value="$PROJECT_DIR$/ai-service/pom.xml" />
+        <option value="$PROJECT_DIR$/document-service/pom.xml" />
+        <option value="$PROJECT_DIR$/vector-service/pom.xml" />
       </list>
     </option>
   </component>

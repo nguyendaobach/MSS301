@@ -13,6 +13,9 @@ app:
     mindmap: /mindmap
     identity: /identity
     ownership: /ownership
+    vector: /vectors
+    ai: /ai
+    documents: /documents
 
 spring:
   application:
@@ -70,6 +73,27 @@ spring:
               filters:
                 - RewritePath=${app.api-prefix}${app.service-prefix.identity}/(?<segment>.*), /${segment}
 
+            - id: ai-service
+              uri: lb://ai-service
+              predicates:
+                - Path=${app.api-prefix}${app.service-prefix.ai}/**
+              filters:
+                - RewritePath=${app.api-prefix}${app.service-prefix.ai}/(?<segment>.*), /${segment}
+
+            - id: document-service
+              uri: lb://document-service
+              predicates:
+                - Path=${app.api-prefix}${app.service-prefix.document}/**
+              filters:
+                - RewritePath=${app.api-prefix}${app.service-prefix.document}/(?<segment>.*), /${segment}
+
+            - id: vector-service
+              uri: lb://vector-service
+              predicates:
+                - Path=${app.api-prefix}${app.service-prefix.vector}/**
+              filters:
+                - RewritePath=${app.api-prefix}${app.service-prefix.vector}/(?<segment>.*), /${segment}
+
             # 8806
             - id: ownership-service
               uri: lb://ownership-service
@@ -77,6 +101,7 @@ spring:
                 - Path=${app.api-prefix}/ownership/**
               filters:
                 - RewritePath=${app.api-prefix}/ownership/(?<segment>.*), /${segment}
+
 springdoc:
   api-docs:
     enabled: true
@@ -91,6 +116,12 @@ springdoc:
         url: /identity-service/v3/api-docs
       - name: ownership-service
         url: /ownership-service/v3/api-docs
+      - name: ai-service
+        url: /ai-service/v3/api-docs
+      - name: vector-service
+        url: /vector-service/v3/api-docs
+      - name: document-service
+        url: /document-service/v3/api-docs
 eureka:
   client:
     service-url:
