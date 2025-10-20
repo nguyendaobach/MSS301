@@ -15,7 +15,7 @@ app:
     ownership: /ownership
     vector: /vectors
     ai: /ai
-    documents: /documents
+    document: /documents
 
 spring:
   application:
