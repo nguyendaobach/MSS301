@@ -63,7 +63,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
         String userId = jwtUtils.extractUserId(token);
         String email = jwtUtils.extractEmail(token);
-
+        log.info("Extracted UserId: " + userId);
         ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
                 .header("X-User-Id", userId != null ? userId : "")
                 .header("X-User-Email", email != null ? email : "")

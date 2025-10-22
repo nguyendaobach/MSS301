@@ -15,19 +15,15 @@ public class PublicUrlMatcher {
             "/identity/auth/register",
             "/identity/auth/register-with-otp",
             "/identity/auth/verify-otp",
-            "/identity/auth/introspect",
+            "/identity/auth/introspect"
             //quiz
-            "/quiz/quizs",
-            "/quiz/documents/**",
-            "/quiz/files/upload",
-
-            "/ai/**",
-            "/documents/**",
-            "/vectors/**"
+            //"/quiz/quizs",
+//            "/quiz/documents/**",
+//            "/quiz/files/upload"
 
 
 
-            );
+    );
     private static final List<String> PUBLIC_WILDCARD_PATTERNS = List.of(
 
     );
