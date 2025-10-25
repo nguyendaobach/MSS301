@@ -21,5 +21,6 @@ public class EdgeDto {
     private UUID sourceNode;
 
     private UUID targetNode;
+    private UUID mindmapId;
 
 }

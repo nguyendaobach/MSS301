@@ -6,6 +6,7 @@ import mss.mindmap.mindmapservice.mindmap.dto.request.EdgeDto;
 import mss.mindmap.mindmapservice.mindmap.entity.Edges;
 import mss.mindmap.mindmapservice.mindmap.entity.Mindmap;
 import mss.mindmap.mindmapservice.mindmap.entity.Nodes;
+import mss.mindmap.mindmapservice.mindmap.mapper.EdgeMapper;
 import mss.mindmap.mindmapservice.mindmap.repository.EdgeRepository;
 import mss.mindmap.mindmapservice.mindmap.repository.IMindmapRepository;
 import mss.mindmap.mindmapservice.mindmap.repository.NodeRepository;
@@ -17,6 +18,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,10 +28,14 @@ public class EdgeService implements IEdgeService {
     private final NodeRepository nodeRepository;
     private final IMindmapRepository mindmapRepository;
 
+
     @Override
     public Optional<List<Edges>> getEdgesByMindMap(UUID mindMapid) {
-        Mindmap mindmap = mindmapRepository.findById(mindMapid).orElseThrow(() -> new EntityNotFoundException("Mindmap " +mindMapid + " not found"));
-        return edgeRepository.findByMindmap(mindmap);
+        Mindmap mindmap = mindmapRepository
+                .findById(mindMapid)
+                .orElseThrow(() -> new EntityNotFoundException("Mindmap " + mindMapid + " not found"));
+        Optional<List<Edges>> edges =  edgeRepository.findByMindmap(mindmap);
+        return edges;
     }
 
     @Override
@@ -37,11 +43,12 @@ public class EdgeService implements IEdgeService {
         try{
             Nodes sourceNode = nodeRepository.findById(edgeDto.getSourceNode()).orElseThrow(() -> new EntityNotFoundException("Source node not found"));
             Nodes targetNode = nodeRepository.findById(edgeDto.getTargetNode()).orElseThrow(() -> new EntityNotFoundException("Targe node not found"));
-
+            Mindmap mindmap = mindmapRepository.findById(edgeDto.getMindmapId()).orElseThrow(() -> new EntityNotFoundException("MindMap not found"));
             Edges edges =  Edges.builder()
                     .id(edgeDto.getEdgeId())
                     .sourceNode(sourceNode)
                     .targetNode(targetNode)
+                    .mindmap(mindmap)
                     .createdAt(OffsetDateTime.now())
                     .build();
             edgeRepository.save(edges);

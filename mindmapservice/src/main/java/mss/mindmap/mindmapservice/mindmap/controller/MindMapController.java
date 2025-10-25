@@ -1,15 +1,18 @@
 package mss.mindmap.mindmapservice.mindmap.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import mss.mindmap.mindmapservice.mindmap.dto.ApiResponse;
 import mss.mindmap.mindmapservice.mindmap.dto.request.ChangeRequestDto;
 import mss.mindmap.mindmapservice.mindmap.dto.request.MindmapDto;
 import mss.mindmap.mindmapservice.mindmap.service.IEventService;
 import mss.mindmap.mindmapservice.mindmap.service.IMindmapService;
+import mss.mindmap.mindmapservice.mindmap.util.HeaderExtractor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -18,16 +21,31 @@ import java.util.UUID;
 public class MindMapController {
 
 
+    private final HeaderExtractor headerExtractor;
     private final IMindmapService mindmapService;
     private final IEventService eventService;
 
     @PostMapping()
-    public ApiResponse<MindmapDto> createMindmap(@RequestBody MindmapDto mindmapDto) {
-        MindmapDto result = mindmapService.createMindmap(mindmapDto);
+    public ApiResponse<MindmapDto> createMindmap(HttpServletRequest request, @RequestBody MindmapDto mindmapDto) {
+        MindmapDto result = mindmapService.createMindmap(request, mindmapDto);
 
         return ApiResponse.<MindmapDto>builder()
                 .code(HttpStatus.CREATED.value())
-                .message("mindmap created")
+                .message("Mindmap created")
+                .success(true)
+                .data(result)
+                .build();
+    }
+
+    @GetMapping("/user")
+    public ApiResponse<List<MindmapDto>> userMindMaps (HttpServletRequest request) {
+        UUID userId = UUID.fromString(headerExtractor.getUserId(request));
+        List<MindmapDto> result = mindmapService.getMindmapByUserId(userId);
+
+        return ApiResponse.<List<MindmapDto>>builder()
+                .code(HttpStatus.OK.value())
+                .message("")
+                .success(true)
                 .data(result)
                 .build();
     }
@@ -39,6 +57,7 @@ public class MindMapController {
         return ApiResponse.<MindmapDto>builder()
                 .code(HttpStatus.OK.value())
                 .message("")
+                .success(true)
                 .data(result)
                 .build();
     }
@@ -50,6 +69,7 @@ public class MindMapController {
         return ApiResponse.<MindmapDto>builder()
                 .code(HttpStatus.OK.value())
                 .message("success")
+                .success(true)
                 .build();
     }
 

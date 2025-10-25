@@ -2,12 +2,11 @@ package mss.mindmap.mindmapservice.mindmap.service.implement;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import mss.mindmap.mindmapservice.mindmap.dto.request.ChangeEvent;
-import mss.mindmap.mindmapservice.mindmap.dto.request.ChangeRequestDto;
-import mss.mindmap.mindmapservice.mindmap.dto.request.EdgeDto;
-import mss.mindmap.mindmapservice.mindmap.dto.request.NodeDto;
+import mss.mindmap.mindmapservice.mindmap.dto.request.*;
+import mss.mindmap.mindmapservice.mindmap.repository.IMindmapRepository;
 import mss.mindmap.mindmapservice.mindmap.service.IEdgeService;
 import mss.mindmap.mindmapservice.mindmap.service.IEventService;
+import mss.mindmap.mindmapservice.mindmap.service.IMindmapService;
 import mss.mindmap.mindmapservice.mindmap.service.INodeService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,88 +20,88 @@ public class EventService implements IEventService {
 
     private final IEdgeService edgeService;
     private final INodeService nodeService;
+    private final IMindmapService mindmapService;
+    private final IMindmapRepository mindmapRepository;
 
 
     @Override
-@Transactional
+    @Transactional
     public void applyChange(ChangeRequestDto changeRequestDto, UUID mapId) {
         for (ChangeEvent event : changeRequestDto.getChanges()) {
             switch (event.type) {
 
                 // ======== NODE ======== //
-                case ADD_NODE -> {
+                case NODE_ADD -> {
                     NodeDto dto = NodeDto.builder()
-                            .nodeId(event.getNodeId())
+                            .nodeId(UUID.fromString(event.getNodeId()))
                             .label(event.label)
                             .positionX(event.x)
                             .positionY(event.y)
-                            .mindmap(event.mindMapid)
+                            .mindmap(mapId)
                             .build();
                     nodeService.createNode(dto);
                     log.info("ADD_NODE");
                     break;
                 }
 
-                case UPDATE_NODE -> {
+                case NODE_UPDATE -> {
                     NodeDto dto = NodeDto.builder()
                             .label(event.label)
                             .positionX(event.x)
                             .positionY(event.y)
                             .build();
-                    nodeService.updateNode(event.nodeId, dto);
+                    nodeService.updateNode(UUID.fromString(event.nodeId), dto);
+                    log.info("UPDATE_NODE");
                     break;
                 }
 
-                case MOVE_NODE -> {
-                    if (event.x == null || event.y == null)
-                        throw new IllegalArgumentException("MOVE_NODE cần x,y");
-                    NodeDto dto = NodeDto.builder()
-                            .positionX(event.x)
-                            .positionY(event.y)
-                            .build();
-                    nodeService.updateNodePosition(event.nodeId, dto);
-                    break;
-                }
+//                case MOVE_NODE -> {
+//                    if (event.x == null || event.y == null)
+//                        throw new IllegalArgumentException("MOVE_NODE cần x,y");
+//                    NodeDto dto = NodeDto.builder()
+//                            .positionX(event.x)
+//                            .positionY(event.y)
+//                            .build();
+//                    nodeService.updateNodePosition(event.nodeId, dto);
+//                    break;
+//                }
 
-                case REMOVE_NODE -> {
-                    nodeService.deleteNode(event.nodeId);
+                case NODE_DELETE -> {
+                    nodeService.deleteNode(UUID.fromString(event.nodeId));
                     break;
                 }
 
                 // ======== EDGE ======== //
-                case ADD_EDGE -> {
+                case EDGE_ADD -> {
                     if (event.sourceNode == null || event.targetNode == null)
                         throw new IllegalArgumentException("ADD_EDGE cần source, target");
                     EdgeDto edgeDto = EdgeDto.builder()
-                            .edgeId(event.edgeId)
-                            .sourceNode(event.sourceNode)
-                            .targetNode(event.targetNode)
+                            .edgeId(UUID.fromString(event.edgeId))
+                            .sourceNode(UUID.fromString(event.sourceNode))
+                            .targetNode(UUID.fromString(event.targetNode))
+                            .mindmapId(mapId)
                             .build();
                     edgeService.createEdge(edgeDto);
                     break;
 
                 }
 
-                case REMOVE_EDGE -> {
-                    edgeService.deleteNode(event.edgeId);
+                case EDGE_DELETE -> {
+                    edgeService.deleteNode(UUID.fromString(event.edgeId));
                     break;
                 }
 
-//            // ======== MAP ======== //
-//            case UPDATE_MAP_TITLE -> {
-//                mindmapRepository.updateTitle(mapId, op.title);
-//                log.info("[UPDATE_MAP_TITLE] {}", op.title);
-//            }
-//
-//            case UPDATE_MAP_TAGS -> {
-//                mindmapRepository.updateTags(mapId, op.tags);
-//                log.info("[UPDATE_MAP_TAGS] {}", op.tags);
-//            }
-//
-//            case UPDATE_MAP_STATUS -> {
-//                mindmapRepository.updateStatus(mapId, op.status);
-//                log.info("[UPDATE_MAP_STATUS] {}", op.status);
-//            }
+            // ======== MAP ======== //
+                case CHANGE_TITLE  -> {
+                    MindmapDto dto = MindmapDto.builder()
+                            .mindMapId(mapId)
+                            .title(event.mindMapName)
+                            .build();
+                    mindmapService.updateMindmap(dto);
+                    break;
+
+                }
+
 
                 default -> throw new UnsupportedOperationException("Unsupported ChangeType: " + event.type);
             }

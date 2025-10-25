@@ -27,6 +27,7 @@ public class GlobalExceptionHandler {
         ApiResponse<?> apiResponse  =  ApiResponse.builder()
                 .message(exception.getMessage())
                 .code(HttpStatus.BAD_REQUEST.value())
+                .success(false)
                 .build();
 
         return ResponseEntity.badRequest().body(apiResponse);
@@ -39,6 +40,7 @@ public class GlobalExceptionHandler {
         ApiResponse<?> apiResponse =  ApiResponse.builder()
                 .message(errorCode.getMessage())
                 .code(errorCode.getCode())
+                .success(false)
                 .build();
 
         return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);

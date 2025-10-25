@@ -3,6 +3,7 @@ package mss.mindmap.mindmapservice.mindmap.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
@@ -10,6 +11,7 @@ import java.util.UUID;
 
 @Table(name = "mindmap_edge")
 @Entity
+@Data
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
