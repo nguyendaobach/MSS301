@@ -2,10 +2,11 @@ package mss.mindmap.mindmapservice.mindmap.util;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.experimental.UtilityClass;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-@UtilityClass
+@Component
 public class HeaderExtractor {
 
     public String getUserId(HttpServletRequest request) {

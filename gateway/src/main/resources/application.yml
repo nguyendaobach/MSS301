@@ -13,7 +13,9 @@ app:
     mindmap: /mindmap
     identity: /identity
     ownership: /ownership
-
+    documents: /documents
+    vector: /vector
+    ai: /ai
 spring:
   application:
     name: gateway-service
@@ -69,6 +71,27 @@ spring:
                 - Path=${app.api-prefix}${app.service-prefix.identity}/**
               filters:
                 - RewritePath=${app.api-prefix}${app.service-prefix.identity}/(?<segment>.*), /${segment}
+
+            - id: ai-service
+              uri: lb://ai-service
+              predicates:
+                - Path=${app.api-prefix}${app.service-prefix.ai}/**
+              filters:
+                - RewritePath=${app.api-prefix}${app.service-prefix.ai}/(?<segment>.*), /${segment}
+
+            - id: document-service
+              uri: lb://document-service
+              predicates:
+                - Path=${app.api-prefix}${app.service-prefix.documents}/**
+              filters:
+                - RewritePath=${app.api-prefix}${app.service-prefix.documents}/(?<segment>.*), /${segment}
+
+            - id: vector-service
+              uri: lb://vector-service
+              predicates:
+                - Path=${app.api-prefix}${app.service-prefix.vector}/**
+              filters:
+                - RewritePath=${app.api-prefix}${app.service-prefix.vector}/(?<segment>.*), /${segment}
 
             # 8806
             - id: ownership-service
