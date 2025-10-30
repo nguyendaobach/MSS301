@@ -24,6 +24,7 @@ public class EventController {
 
         return ApiResponse.<MindmapDto>builder()
                 .code(HttpStatus.OK.value())
+                .success(true)
                 .message("Update Success")
                 .build();
     }
