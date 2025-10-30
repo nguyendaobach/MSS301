@@ -16,6 +16,7 @@ app:
     documents: /documents
     vector: /vector
     ai: /ai
+    admin: /admin
 spring:
   application:
     name: gateway-service
@@ -72,6 +73,14 @@ spring:
               filters:
                 - RewritePath=${app.api-prefix}${app.service-prefix.identity}/(?<segment>.*), /${segment}
 
+#              api-prefix: /api/v1
+#              identity: /identity
+#            # incoming request
+#            GET /api/v1/identity/users/123
+#
+#            # forwarded to identity-service as
+#            GET /users/123
+
             - id: ai-service
               uri: lb://ai-service
               predicates:
@@ -100,6 +109,14 @@ spring:
                 - Path=${app.api-prefix}/ownership/**
               filters:
                 - RewritePath=${app.api-prefix}/ownership/(?<segment>.*), /${segment}
+
+            # 8087
+            - id: admin-service
+              uri: lb://admin-service
+              predicates:
+                - Path=${app.api-prefix}${app.service-prefix.admin}/**
+              filters:
+                - RewritePath=${app.api-prefix}${app.service-prefix.admin}/(?<segment>.*), /${segment}
 springdoc:
   api-docs:
     enabled: true
