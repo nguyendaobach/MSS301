@@ -47,9 +47,16 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         String path = exchange.getRequest().getURI().getPath().replaceAll(API_PREFIX, "");
         HttpMethod method = exchange.getRequest().getMethod();
 
+        ServerHttpRequest.Builder requestBuilder = exchange.getRequest().mutate();
+
+        requestBuilder.header("X-Gateway-Secret", "4391D97158194");
 
         if (publicUrlMatcher.matches(path, method)) {
-            return chain.filter(exchange);
+
+            ServerWebExchange mutatedExchange = exchange.mutate()
+                    .request(requestBuilder.build())
+                    .build();
+            return chain.filter(mutatedExchange);
         }
 
         List<String> authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION);
@@ -63,20 +70,22 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             return unauthenticated(exchange.getResponse(), "Invalid or expired token");
         }
 
-        List<String> roles =  jwtUtils.extractRoles(token);
-
+        List<String> roles = jwtUtils.extractRoles(token);
         if (!roleAccessMatcher.isAuthorized(path, roles, method)) {
             return forbidden(exchange.getResponse(), "Access denied for " + method + " " + path);
         }
 
         String userId = jwtUtils.extractUserId(token);
         String email = jwtUtils.extractEmail(token);
-        ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
+
+        requestBuilder
                 .header("X-User-Id", userId != null ? userId : "")
-                .header("X-User-Email", email != null ? email : "")
+                .header("X-User-Email", email != null ? email : "");
+
+        ServerWebExchange mutatedExchange = exchange.mutate()
+                .request(requestBuilder.build())
                 .build();
 
-        ServerWebExchange mutatedExchange = exchange.mutate().request(mutatedRequest).build();
         return chain.filter(mutatedExchange);
     }
 

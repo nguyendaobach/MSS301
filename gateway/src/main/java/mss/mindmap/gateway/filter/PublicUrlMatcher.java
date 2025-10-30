@@ -21,7 +21,7 @@ public class PublicUrlMatcher {
 
 
             new PublicRule(HttpMethod.GET, List.of(
-                    "/quiz/quizs/**"
+                    "/quiz/quizzes/**"
             ))
     );
 

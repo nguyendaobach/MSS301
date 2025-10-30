@@ -15,14 +15,24 @@ public class RoleAccessMatcher {
             new RoleAccessRule(HttpMethod.GET,
                     List.of(""),
                     List.of("STUDENT", "TEACHER", "ADMIN")),
+
             new RoleAccessRule(HttpMethod.POST,
-                    List.of("/quiz/quizs/**"),
+                    List.of("/quiz/quizzes/",
+                            "/quiz/quizzes/{quizId}/answer-key",
+                            "/quiz/flies/upload"),
                     List.of("TEACHER", "ADMIN")),
+
+            new RoleAccessRule(HttpMethod.POST,
+                    List.of("/quiz/quizzes/{quizId}/attempts/{attemptId}/submit",
+                            "/quiz/quizzes/{quizId}/attempts"),
+                    List.of("STUDENT", "TEACHER", "ADMIN")),
+
+
             new RoleAccessRule(HttpMethod.PUT,
-                    List.of("/quiz/quizs/**"),
+                    List.of("/quiz/quizzes/**"),
                     List.of("TEACHER", "ADMIN")),
             new RoleAccessRule(HttpMethod.DELETE,
-                    List.of("/quiz/quizs/**"),
+                    List.of("/quiz/quizzes/**"),
                     List.of("TEACHER", "ADMIN"))
     );
     public boolean isAuthorized(String path, List<String> roles, HttpMethod method) {
