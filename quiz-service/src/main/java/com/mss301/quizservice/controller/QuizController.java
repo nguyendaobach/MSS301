@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -21,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/quizs")
+@RequestMapping("/quizzes")
 @RequiredArgsConstructor
 @Slf4j
 public class QuizController {
@@ -51,7 +52,7 @@ public class QuizController {
     @Operation(summary = "Upload PDF for a quiz")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<QuizResponse> createQuiz(@RequestPart("quizRequest")  @Parameter(content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE))
-                                                    QuizRequest quizRequest,
+                                                    @Valid QuizRequest quizRequest,
                                                 @Parameter(description = "PDF file to upload")
                                                 @RequestPart("file") MultipartFile file,
                                                 HttpServletRequest httpRequest) {
@@ -64,7 +65,7 @@ public class QuizController {
     }
 
     @PutMapping("/{quizId}")
-    public ApiResponse<QuizResponse> updateQuiz(@RequestBody QuizRequest quizRequest, @PathVariable String quizId, HttpServletRequest httpRequest) {
+    public ApiResponse<QuizResponse> updateQuiz(@RequestBody @Valid QuizRequest quizRequest, @PathVariable String quizId, HttpServletRequest httpRequest) {
         String userId = HeaderExtractor.getUserId(httpRequest);
         return ApiResponse.<QuizResponse>builder()
                 .result(quizService.updateQuizzes(quizId, userId, quizRequest))

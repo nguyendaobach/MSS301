@@ -104,11 +104,11 @@ public class UserServiceImpl implements UserService {
             user.setUpdatedAt(OffsetDateTime.now());
 
             // Lấy role VIEWER mặc định
-            Role defaultRole = roleRepository.findByCode("VIEWER")
+            Role defaultRole = roleRepository.findByCode("STUDENT")
                     .orElseGet(() -> {
                         Role newRole = new Role();
-                        newRole.setCode("VIEWER");
-                        newRole.setName("Viewer");
+                        newRole.setCode("STUDENT");
+                        newRole.setName("Student");
                         return roleRepository.save(newRole);
                     });
 

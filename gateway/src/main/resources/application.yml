@@ -100,6 +100,7 @@ spring:
                 - Path=${app.api-prefix}/ownership/**
               filters:
                 - RewritePath=${app.api-prefix}/ownership/(?<segment>.*), /${segment}
+
 springdoc:
   api-docs:
     enabled: true
