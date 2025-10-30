@@ -36,7 +36,7 @@
         </processorPath>
         <module name="mindmapservice" />
       </profile>
-      <profile name="Annotation profile for vector-service" enabled="true">
+      <profile name="Annotation profile for gateway" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -46,8 +46,8 @@
         <module name="vector-service" />
         <module name="ownership-service" />
         <module name="identity-service" />
-        <module name="ai-service" />
         <module name="gateway" />
+        <module name="ai-service" />
         <module name="document-service" />
       </profile>
     </annotationProcessing>
