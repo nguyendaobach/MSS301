@@ -73,4 +73,15 @@ public class MindMapController {
                 .build();
     }
 
+    @DeleteMapping("/{id}")
+    public ApiResponse<MindmapDto> deleteMindMap (@PathVariable UUID id) {
+        mindmapService.deleteMindmap(id);
+
+        return ApiResponse.<MindmapDto>builder()
+                .code(HttpStatus.OK.value())
+                .message("success")
+                .success(true)
+                .build();
+    }
+
 }

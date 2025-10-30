@@ -9,6 +9,7 @@ import mss.mindmap.mindmapservice.mindmap.repository.IMindmapRepository;
 import mss.mindmap.mindmapservice.mindmap.repository.NodeRepository;
 import mss.mindmap.mindmapservice.mindmap.service.INodeService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -74,9 +75,14 @@ public class NodeService implements INodeService {
     }
 
     @Override
+    @Transactional
     public void deleteNode(UUID nodeId) {
-        // Xóa edge trước (nếu không dùng ON DELETE CASCADE)
-//        edgeRepository.deleteBySourceOrTarget(nodeId);
+        // Kiểm tra node có tồn tại không
+        if (!nodeRepository.existsById(nodeId)) {
+            throw new EntityNotFoundException("Node not found: " + nodeId);
+        }
+        
+        // Xóa node - các edges sẽ tự động bị xóa nhờ ON DELETE CASCADE
         nodeRepository.deleteById(nodeId);
     }
 }

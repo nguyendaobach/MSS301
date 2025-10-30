@@ -41,13 +41,21 @@ public class EdgeService implements IEdgeService {
     @Override
     public void createEdge(EdgeDto edgeDto) {
         try{
-            Nodes sourceNode = nodeRepository.findById(edgeDto.getSourceNode()).orElseThrow(() -> new EntityNotFoundException("Source node not found"));
-            Nodes targetNode = nodeRepository.findById(edgeDto.getTargetNode()).orElseThrow(() -> new EntityNotFoundException("Targe node not found"));
-            Mindmap mindmap = mindmapRepository.findById(edgeDto.getMindmapId()).orElseThrow(() -> new EntityNotFoundException("MindMap not found"));
+            Nodes sourceNode = nodeRepository.findById(edgeDto.getSourceNode())
+                    .orElseThrow(() -> new EntityNotFoundException("Source node not found"));
+
+            Nodes targetNode = nodeRepository.findById(edgeDto.getTargetNode())
+                    .orElseThrow(() -> new EntityNotFoundException("Targe node not found"));
+
+            Mindmap mindmap = mindmapRepository.findById(edgeDto.getMindmapId())
+                    .orElseThrow(() -> new EntityNotFoundException("MindMap not found"));
+
             Edges edges =  Edges.builder()
                     .id(edgeDto.getEdgeId())
                     .sourceNode(sourceNode)
                     .targetNode(targetNode)
+                    .sourceHandle(edgeDto.getSourceHandle())
+                    .targetHandle(edgeDto.getTargetHandle())
                     .mindmap(mindmap)
                     .createdAt(OffsetDateTime.now())
                     .build();
@@ -65,7 +73,16 @@ public class EdgeService implements IEdgeService {
     }
 
     @Override
-    public void deleteNode(UUID edgeId) {
+    public void deleteEdge(UUID edgeId) {
         edgeRepository.deleteById(edgeId);
+    }
+
+    @Override
+    public void deleteEdgesBySourceNodeOrTargetNode(UUID nodeId) {
+        Optional<Nodes> existNode = nodeRepository.findById(nodeId);
+        if (!existNode.isPresent()) {
+            return ;
+        }
+        int count = edgeRepository.deleteEdgesBySourceNodeOrTargetNode(existNode.get(), existNode.get());
     }
 }

@@ -11,7 +11,6 @@ import java.util.UUID;
 public class ChangeEvent {
     public ChangeType type;
     public String mindMapid;
-    public String mindMapName;
 
     // Node
     public String nodeId;
@@ -23,6 +22,8 @@ public class ChangeEvent {
     public String edgeId;
     public String sourceNode;
     public String targetNode;
+    public String sourceHandle;
+    public String targetHandle;
 
     public String title;
     public String status;

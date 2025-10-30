@@ -55,19 +55,9 @@ public class EventService implements IEventService {
                     break;
                 }
 
-//                case MOVE_NODE -> {
-//                    if (event.x == null || event.y == null)
-//                        throw new IllegalArgumentException("MOVE_NODE cần x,y");
-//                    NodeDto dto = NodeDto.builder()
-//                            .positionX(event.x)
-//                            .positionY(event.y)
-//                            .build();
-//                    nodeService.updateNodePosition(event.nodeId, dto);
-//                    break;
-//                }
-
                 case NODE_DELETE -> {
                     nodeService.deleteNode(UUID.fromString(event.nodeId));
+                    edgeService.deleteEdgesBySourceNodeOrTargetNode(UUID.fromString(event.nodeId));
                     break;
                 }
 
@@ -79,6 +69,8 @@ public class EventService implements IEventService {
                             .edgeId(UUID.fromString(event.edgeId))
                             .sourceNode(UUID.fromString(event.sourceNode))
                             .targetNode(UUID.fromString(event.targetNode))
+                            .sourceHandle(event.sourceHandle)
+                            .targetHandle(event.targetHandle)
                             .mindmapId(mapId)
                             .build();
                     edgeService.createEdge(edgeDto);
@@ -87,7 +79,7 @@ public class EventService implements IEventService {
                 }
 
                 case EDGE_DELETE -> {
-                    edgeService.deleteNode(UUID.fromString(event.edgeId));
+                    edgeService.deleteEdge(UUID.fromString(event.edgeId));
                     break;
                 }
 
@@ -95,7 +87,7 @@ public class EventService implements IEventService {
                 case CHANGE_TITLE  -> {
                     MindmapDto dto = MindmapDto.builder()
                             .mindMapId(mapId)
-                            .title(event.mindMapName)
+                            .title(event.title)
                             .build();
                     mindmapService.updateMindmap(dto);
                     break;
