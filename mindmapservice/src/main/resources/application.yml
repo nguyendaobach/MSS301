@@ -19,21 +19,24 @@ spring:
         options:
           model: deepseek-r1:7b
 
-#  datasource:
-#    driverClassName: "org.postgresql.Driver"
-#    url: "jdbc:postgresql://localhost:5432/Mss-Mindmap"
-#    username: "postgres"
-#    password: "12345678"
-#  datasource:
-#    driverClassName: "org.postgresql.Driver"
-#    url: "jdbc:postgresql://localhost:5432/test"
-#    username: "postgres"
-#    password: "12345"
   datasource:
     driverClassName: "org.postgresql.Driver"
     url: jdbc:postgresql://localhost:5433/mindmapService
     username: root
     password: StrongP@ssword123
+
+#  datasource:
+#    driverClassName: "org.postgresql.Driver"
+#    url: "jdbc:postgresql://localhost:5432/Mss-Mindmap"
+#    username: "postgres"
+#    password: "12345678"
+
+#  datasource:
+#    driverClassName: "org.postgresql.Driver"
+#    url: "jdbc:postgresql://localhost:5432/test"
+#    username: "postgres"
+#    password: "12345"
+
 eureka:
   client:
     service-url:

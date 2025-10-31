@@ -9,4 +9,5 @@ import java.util.UUID;
 
 public interface IMindmapRepository extends JpaRepository<Mindmap, UUID> {
     Optional<List<Mindmap>> findByUserId(UUID userId);
+
 }

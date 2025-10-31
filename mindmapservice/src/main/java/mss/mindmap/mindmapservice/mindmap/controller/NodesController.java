@@ -18,7 +18,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("node")
+@RequestMapping("nodes")
 @RequiredArgsConstructor
 public class NodesController {
 
@@ -31,6 +31,7 @@ public class NodesController {
         return ApiResponse.<Optional<List<Nodes>>>builder()
                 .code(HttpStatus.OK.value())
                 .message("Get All Nodes")
+                .success(true)
                 .data(nodes)
                 .build();
     }

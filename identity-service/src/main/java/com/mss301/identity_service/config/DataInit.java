@@ -27,6 +27,7 @@ public class DataInit implements CommandLineRunner {
     private void initializeData() {
         String adminEmail = "admin@gmail.com";
         String teacherEmail = "teacher@gmail.com";
+        String studentEmail = "student@gmail.com";
 
         Role teacherRole = roleRepository.findByCode("TEACHER")
                 .orElseGet(() -> {
@@ -42,8 +43,15 @@ public class DataInit implements CommandLineRunner {
                     newRole.setName("admin");
                     return roleRepository.save(newRole);
                 });
+        Role studentRole = roleRepository.findByCode("STUDENT")
+                .orElseGet(() -> {
+                    Role newRole = new Role();
+                    newRole.setCode("STUDENT");
+                    newRole.setName("Student");
+                    return roleRepository.save(newRole);
+                });
 
-        if (!userRepository.existsByEmail(adminEmail) && !userRepository.existsByEmail(teacherEmail)) {
+        if (!userRepository.existsByEmail(adminEmail) && !userRepository.existsByEmail(teacherEmail) && !userRepository.existsByEmail(studentEmail)) {
 
             User adminUser = User.builder()
                     .email(adminEmail)
@@ -57,13 +65,21 @@ public class DataInit implements CommandLineRunner {
                     .role(teacherRole)
                     .status(Status.ACTIVE)
                     .build();
-
-
+            User studentUser = User.builder()
+                    .email(studentEmail)
+                    .password(passwordEncoder.encode("123"))
+                    .role(studentRole)
+                    .status(Status.ACTIVE)
+                    .build();
+            userRepository.save(studentUser);
             userRepository.save(adminUser);
             userRepository.save(teacherUser);
+
             log.info("Admin user created successfully with email: {}", adminEmail);
         } else {
             log.info("Admin user already exists with email: {}", adminEmail);
         }
+
+
     }
 }

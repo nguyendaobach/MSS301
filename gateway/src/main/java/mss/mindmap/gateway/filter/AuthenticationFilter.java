@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import org.springframework.http.HttpMethod;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -38,14 +39,24 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
     final ObjectMapper objectMapper;
     final PublicUrlMatcher publicUrlMatcher;
+    final RoleAccessMatcher roleAccessMatcher;
     final JwtUtils jwtUtils;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath().replaceAll(API_PREFIX, "");
+        HttpMethod method = exchange.getRequest().getMethod();
 
-        if (publicUrlMatcher.matches(path)) {
-            return chain.filter(exchange);
+        ServerHttpRequest.Builder requestBuilder = exchange.getRequest().mutate();
+
+        requestBuilder.header("X-Gateway-Secret", "4391D97158194");
+
+        if (publicUrlMatcher.matches(path, method)) {
+
+            ServerWebExchange mutatedExchange = exchange.mutate()
+                    .request(requestBuilder.build())
+                    .build();
+            return chain.filter(mutatedExchange);
         }
 
         List<String> authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION);
@@ -55,21 +66,26 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
         String token = authHeader.get(0).replace("Bearer ", "");
 
-
         if (!jwtUtils.validateToken(token)) {
             return unauthenticated(exchange.getResponse(), "Invalid or expired token");
         }
 
+        List<String> roles = jwtUtils.extractRoles(token);
+        if (!roleAccessMatcher.isAuthorized(path, roles, method)) {
+            return forbidden(exchange.getResponse(), "Access denied for " + method + " " + path);
+        }
 
         String userId = jwtUtils.extractUserId(token);
         String email = jwtUtils.extractEmail(token);
 
-        ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
+        requestBuilder
                 .header("X-User-Id", userId != null ? userId : "")
-                .header("X-User-Email", email != null ? email : "")
+                .header("X-User-Email", email != null ? email : "");
+
+        ServerWebExchange mutatedExchange = exchange.mutate()
+                .request(requestBuilder.build())
                 .build();
 
-        ServerWebExchange mutatedExchange = exchange.mutate().request(mutatedRequest).build();
         return chain.filter(mutatedExchange);
     }
 
@@ -83,13 +99,6 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
         return response.writeWith(Mono.just(buffer));
     }
-
-
-
-    Mono<Void> unauthenticated(ServerHttpResponse response) {
-        return unauthenticated(response, "Unauthenticated");
-    }
-
     Mono<Void> unauthenticated(ServerHttpResponse response, String message) {
         ResponseEntity<?> apiResponse = ResponseEntity.status(401).body(message);
 
@@ -107,6 +116,15 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         return response.writeWith(
                 Mono.just(response.bufferFactory().wrap(body.getBytes())));
     }
+
+    private Mono<Void> forbidden(ServerHttpResponse response, String message) {
+        response.setStatusCode(HttpStatus.FORBIDDEN);
+        response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+        String body = String.format("{\"error\":\"%s\"}", message);
+        return response.writeWith(Mono.just(response.bufferFactory()
+                .wrap(body.getBytes(StandardCharsets.UTF_8))));
+    }
+
 
     @Override
     public int getOrder() {

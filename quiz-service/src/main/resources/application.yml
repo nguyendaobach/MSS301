@@ -20,11 +20,12 @@ cloudinary:
   cloud-name: doghrqfdd
   api-key: 813574374714532
   api-secret: p2QpYz1aeff2NATc_O0O0CnndDY
-
 eureka:
   client:
     service-url:
       defaultZone: http://eureka:123456@localhost:8761/eureka
+gateway:
+  secret: 4391D97158194
 
 
 

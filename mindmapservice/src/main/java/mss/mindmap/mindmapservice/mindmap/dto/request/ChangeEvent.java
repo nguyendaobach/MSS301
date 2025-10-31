@@ -10,18 +10,20 @@ import java.util.UUID;
 @Data
 public class ChangeEvent {
     public ChangeType type;
-    public UUID mindMapid;
+    public String mindMapid;
 
     // Node
-    public UUID nodeId;
+    public String nodeId;
     public String label;
     public Float x;
     public Float y;
 
     //Edge
-    public UUID edgeId;
-    public UUID sourceNode;
-    public UUID targetNode;
+    public String edgeId;
+    public String sourceNode;
+    public String targetNode;
+    public String sourceHandle;
+    public String targetHandle;
 
     public String title;
     public String status;

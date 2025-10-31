@@ -13,10 +13,9 @@ app:
     mindmap: /mindmap
     identity: /identity
     ownership: /ownership
-    vector: /vectors
+    documents: /documents
+    vector: /vector
     ai: /ai
-    document: /documents
-
 spring:
   application:
     name: gateway-service
@@ -83,9 +82,9 @@ spring:
             - id: document-service
               uri: lb://document-service
               predicates:
-                - Path=${app.api-prefix}${app.service-prefix.document}/**
+                - Path=${app.api-prefix}${app.service-prefix.documents}/**
               filters:
-                - RewritePath=${app.api-prefix}${app.service-prefix.document}/(?<segment>.*), /${segment}
+                - RewritePath=${app.api-prefix}${app.service-prefix.documents}/(?<segment>.*), /${segment}
 
             - id: vector-service
               uri: lb://vector-service
@@ -116,12 +115,6 @@ springdoc:
         url: /identity-service/v3/api-docs
       - name: ownership-service
         url: /ownership-service/v3/api-docs
-      - name: ai-service
-        url: /ai-service/v3/api-docs
-      - name: vector-service
-        url: /vector-service/v3/api-docs
-      - name: document-service
-        url: /document-service/v3/api-docs
 eureka:
   client:
     service-url:
