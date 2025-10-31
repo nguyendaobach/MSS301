@@ -1,5 +1,5 @@
 server:
-  port: 8083
+  port: 9093
 
 spring:
   application:
@@ -30,7 +30,7 @@ spring:
 # Custom properties (not under spring)
 vector:
   service:
-    url: ${VECTOR_SERVICE_URL:http://localhost:8082}
+    url: ${VECTOR_SERVICE_URL:http://localhost:9092}
 
 mindmap:
   rag:
