@@ -21,7 +21,9 @@ public class PublicUrlMatcher {
 
 
             new PublicRule(HttpMethod.GET, List.of(
-                    "/quiz/quizzes/**"
+                    "/*-service/v3/api-docs/**",
+                    "/*-service/swagger-ui/**",
+                    "/quiz/quizzes/*"
             ))
     );
 

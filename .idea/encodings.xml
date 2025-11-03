@@ -9,6 +9,7 @@
     <file url="file://$PROJECT_DIR$/identity-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/mindmapservice/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ownership-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/premium-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/quiz-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/vector-service/src/main/java" charset="UTF-8" />
   </component>

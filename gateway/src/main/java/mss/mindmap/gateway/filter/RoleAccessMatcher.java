@@ -16,6 +16,12 @@ public class RoleAccessMatcher {
                     List.of(""),
                     List.of("STUDENT", "TEACHER", "ADMIN")),
 
+            new RoleAccessRule(HttpMethod.GET,
+                    List.of(
+                            "/quiz/quizzes/attempts/*"
+                    ),
+                    List.of("STUDENT")),
+
             new RoleAccessRule(HttpMethod.POST,
                     List.of("/quiz/quizzes/",
                             "/quiz/quizzes/{quizId}/answer-key",
@@ -26,7 +32,6 @@ public class RoleAccessMatcher {
                     List.of("/quiz/quizzes/{quizId}/attempts/{attemptId}/submit",
                             "/quiz/quizzes/{quizId}/attempts"),
                     List.of("STUDENT", "TEACHER", "ADMIN")),
-
 
             new RoleAccessRule(HttpMethod.PUT,
                     List.of("/quiz/quizzes/**"),

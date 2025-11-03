@@ -12,7 +12,6 @@ app:
     premium: /premium
     mindmap: /mindmap
     identity: /identity
-    ownership: /ownership
     documents: /documents
     vector: /vector
     ai: /ai
@@ -49,7 +48,7 @@ spring:
               predicates:
                 - Path=${app.api-prefix}${app.service-prefix.premium}/**
               filters:
-                - RewritePath=${app.api-prefix}${app.service-prefix.premium}/(?<segment>.*), /${segment}
+                - StripPrefix=2
 
             # 8804
             - id: mind-map-service
@@ -70,8 +69,7 @@ spring:
               predicates:
                 - Path=${app.api-prefix}${app.service-prefix.identity}/**
               filters:
-                - RewritePath=${app.api-prefix}${app.service-prefix.identity}/(?<segment>.*), /${segment}
-
+                - StripPrefix=3
             - id: ai-service
               uri: lb://ai-service
               predicates:
@@ -93,14 +91,6 @@ spring:
               filters:
                 - RewritePath=${app.api-prefix}${app.service-prefix.vector}/(?<segment>.*), /${segment}
 
-            # 8806
-            - id: ownership-service
-              uri: lb://ownership-service
-              predicates:
-                - Path=${app.api-prefix}/ownership/**
-              filters:
-                - RewritePath=${app.api-prefix}/ownership/(?<segment>.*), /${segment}
-
 springdoc:
   api-docs:
     enabled: true
@@ -108,13 +98,12 @@ springdoc:
     enabled: true
     urls:
       - name: quiz-service
-        url: /quiz-service/v3/api-docs
+        url: http://localhost:8081/quiz-service/v3/api-docs
       - name: mind-map-service
         url: /mindmap-service/v3/api-docs
       - name: identity-service
         url: /identity-service/v3/api-docs
-      - name: ownership-service
-        url: /ownership-service/v3/api-docs
+
 eureka:
   client:
     service-url:
