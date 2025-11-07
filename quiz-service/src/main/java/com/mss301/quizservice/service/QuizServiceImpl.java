@@ -24,7 +24,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Time;
@@ -49,7 +48,6 @@ public class QuizServiceImpl implements QuizService {
 
 
     @Override
-    @CrossOrigin(origins = "http://localhost:8080", allowedHeaders = "*", methods = {org.springframework.web.bind.annotation.RequestMethod.GET}, allowCredentials = "true")
     public List<QuizResponse> search(String category, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
 
