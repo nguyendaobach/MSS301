@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class MindMapServiceImpl implements MindMapService {
 
-    @Value("${openai.api.key}")
+    @Value("${spring.ai.openai.api-key}")
     private String openaiApiKey;
 
     @Value("${mindmap.rag.top-k:5}")

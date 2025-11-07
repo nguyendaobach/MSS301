@@ -3,6 +3,7 @@ package mss.mindmap.gateway.filter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.http.HttpMethod;
+
 import java.util.List;
 
 
@@ -33,8 +34,47 @@ public class RoleAccessMatcher {
                     List.of("TEACHER", "ADMIN")),
             new RoleAccessRule(HttpMethod.DELETE,
                     List.of("/quiz/quizzes/**"),
-                    List.of("TEACHER", "ADMIN"))
+                    List.of("TEACHER", "ADMIN")),
+
+
+            // MindMap Service
+            //GET
+            new RoleAccessRule(HttpMethod.GET,
+                    List.of("/mindmap/mindmap/**"),
+                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
+            //GET
+            new RoleAccessRule(HttpMethod.POST,
+                    List.of("/mindmap/mindmap/**",
+                            "/mindmap/event/**"),
+                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
+            //GET
+            new RoleAccessRule(HttpMethod.PUT,
+                    List.of("/mindmap/mindmap/**"),
+                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
+            //GET
+            new RoleAccessRule(HttpMethod.DELETE,
+                    List.of("/mindmap/mindmap/**"),
+                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
+
+            // Document Service
+            //GET
+            new RoleAccessRule(HttpMethod.GET,
+                               List.of("/documents/documents/**"),
+                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
+                            //GET
+                            new RoleAccessRule(HttpMethod.POST,
+                                               List.of("/documents/documents/****"),
+                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
+                            //GET
+                            new RoleAccessRule(HttpMethod.PUT,
+                                               List.of("/documents/documents/**"),
+                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
+                            //GET
+                            new RoleAccessRule(HttpMethod.DELETE,
+                                               List.of("/documents/documents/**"),
+                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER"))
     );
+
     public boolean isAuthorized(String path, List<String> roles, HttpMethod method) {
         if (method == null || roles == null || roles.isEmpty()) {
             return false;
