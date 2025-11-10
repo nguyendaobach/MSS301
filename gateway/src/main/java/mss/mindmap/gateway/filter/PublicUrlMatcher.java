@@ -27,7 +27,7 @@ public class PublicUrlMatcher {
                     "/mindmap/v3/api-docs/**",
                     "/identity/v3/api-docs/**",
                     "/ownership/v3/api-docs/**",
-                    "/premium/v3/api-docs/**",
+                    "/**/v3/api-docs/**",
                     "/documents/v3/api-docs/**",
                     "/vector/v3/api-docs/**",
                     "/ai/v3/api-docs/**",
@@ -35,7 +35,10 @@ public class PublicUrlMatcher {
                     "/v3/api-docs/**",
                     "/swagger-ui.html",
                     "/swagger-ui/**",
-                    "/webjars/**"
+                    "/webjars/**",
+                    "/*-service/v3/api-docs/**",
+                    "/*-service/swagger-ui/**",
+                    "/quiz/quizzes/*"
             ))
     );
 

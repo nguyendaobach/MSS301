@@ -6,6 +6,8 @@ import com.mss301.aiservice.dto.request.RegenerateNodeRequest;
 import com.mss301.aiservice.dto.response.ApiResponse;
 import com.mss301.aiservice.dto.response.MindMapResponse;
 import com.mss301.aiservice.service.MindMapService;
+import com.mss301.aiservice.util.HeaderExtractor;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +24,15 @@ public class MindMapController {
 
     @PostMapping("/generate")
     public ResponseEntity<ApiResponse<?>> generateMindmap(
-            @Valid @RequestBody MindMapRequest request) {
+            @Valid @RequestBody MindMapRequest requestDto, HttpServletRequest request) {
 
+        String userId = HeaderExtractor.getUserId(request);
         log.info("Generating mindmap for user: {}, prompt: {}",
-                request.userId(), request.prompt());
+                requestDto.getUserId(), requestDto.getPrompt());
 
+        requestDto.setUserId(userId);
         try {
-            MindMapResponse response = mindmapService.generateMindMap(request);
+            MindMapResponse response = mindmapService.generateMindMap(requestDto);
             return ResponseEntity.ok(
                     ApiResponse.builder()
                             .success(true)
