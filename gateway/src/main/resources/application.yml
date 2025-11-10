@@ -12,7 +12,6 @@ app:
     premium: /premium
     mindmap: /mindmap
     identity: /identity
-    ownership: /ownership
     documents: /documents
     vector: /vector
     ai: /ai

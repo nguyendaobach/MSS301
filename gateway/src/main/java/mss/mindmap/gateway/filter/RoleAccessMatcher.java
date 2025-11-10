@@ -17,6 +17,12 @@ public class RoleAccessMatcher {
                     List.of(""),
                     List.of("STUDENT", "TEACHER", "ADMIN")),
 
+            new RoleAccessRule(HttpMethod.GET,
+                    List.of(
+                            "/quiz/quizzes/attempts/*"
+                    ),
+                    List.of("STUDENT")),
+
             new RoleAccessRule(HttpMethod.POST,
                     List.of("/quiz/quizzes/",
                             "/quiz/quizzes/{quizId}/answer-key",
@@ -27,7 +33,6 @@ public class RoleAccessMatcher {
                     List.of("/quiz/quizzes/{quizId}/attempts/{attemptId}/submit",
                             "/quiz/quizzes/{quizId}/attempts"),
                     List.of("STUDENT", "TEACHER", "ADMIN")),
-
 
             new RoleAccessRule(HttpMethod.PUT,
                     List.of("/quiz/quizzes/**"),
@@ -40,7 +45,7 @@ public class RoleAccessMatcher {
             // MindMap Service
             //GET
             new RoleAccessRule(HttpMethod.GET,
-                    List.of("/mindmap/mindmap/**"),
+                    List.of("/mindmap/mindmap/**", "/mindmap/nodes/**", "/mindmap/edges/**"),
                     List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
             //GET
             new RoleAccessRule(HttpMethod.POST,
@@ -59,19 +64,37 @@ public class RoleAccessMatcher {
             // Document Service
             //GET
             new RoleAccessRule(HttpMethod.GET,
-                               List.of("/documents/documents/**"),
+                    List.of("/documents/documents/**"),
                     List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
-                            //GET
-                            new RoleAccessRule(HttpMethod.POST,
-                                               List.of("/documents/documents/****"),
+            //GET
+            new RoleAccessRule(HttpMethod.POST,
+                    List.of("/documents/documents/****"),
                     List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
-                            //GET
-                            new RoleAccessRule(HttpMethod.PUT,
-                                               List.of("/documents/documents/**"),
+            //GET
+            new RoleAccessRule(HttpMethod.PUT,
+                    List.of("/documents/documents/**"),
                     List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
-                            //GET
-                            new RoleAccessRule(HttpMethod.DELETE,
-                                               List.of("/documents/documents/**"),
+            //GET
+            new RoleAccessRule(HttpMethod.DELETE,
+                    List.of("/documents/documents/**"),
+                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
+
+            // AI Service
+            //GET
+            new RoleAccessRule(HttpMethod.GET,
+                    List.of("/ai/ai/**"),
+                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
+            //GET
+            new RoleAccessRule(HttpMethod.POST,
+                    List.of("/ai/ai/**"),
+                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
+            //GET
+            new RoleAccessRule(HttpMethod.PUT,
+                    List.of("/documents/documents/**"),
+                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
+            //GET
+            new RoleAccessRule(HttpMethod.DELETE,
+                    List.of("/documents/documents/**"),
                     List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER"))
     );
 

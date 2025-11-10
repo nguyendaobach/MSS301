@@ -2,6 +2,8 @@ package com.mss301.documentservice.controller;
 
 import com.mss301.documentservice.dto.DocumentMetadataDTO;
 import com.mss301.documentservice.service.DocumentService;
+import com.mss301.documentservice.util.HeaderExtractor;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,10 +23,10 @@ public class DocumentController {
     private final DocumentService documentService;
 
     @PostMapping("/upload")
-    public ResponseEntity<DocumentMetadataDTO> uploadDocument(
-            @RequestParam("file") @NotNull MultipartFile file,
-            @RequestParam("userId") @NotNull String userId) {
+    public ResponseEntity<DocumentMetadataDTO> uploadDocument(@RequestParam("file") @NotNull MultipartFile file,
+                                                              HttpServletRequest request) {
 
+        String userId = HeaderExtractor.getUserId(request);
         log.info("Received document upload request from user: {}, filename: {}",
                 userId, file.getOriginalFilename());
 

@@ -73,13 +73,13 @@ public class MindMapServiceImpl implements MindMapService {
 
 
     public MindMapResponse generateMindMap(MindMapRequest request) {
-        log.info("Starting mindmap generation for user: {}", request.userId());
+        log.info("Starting mindmap generation for user: {}", request.getUserId());
 
         try {
             // Step 1: RAG - Retrieve relevant context from user's documents
             List<RetrievedChunkDto> relevantChunks = retrieveContext(
-                    request.prompt(),
-                    request.userId()
+                    request.getPrompt(),
+                    request.getUserId()
             );
 
             log.info("Retrieved {} relevant chunks", relevantChunks.size());
@@ -89,7 +89,7 @@ public class MindMapServiceImpl implements MindMapService {
 
             // Step 3: Build prompts for LLM
             String systemPrompt = buildSystemPrompt();
-            String userPrompt = buildUserPrompt(request.prompt(), context, request);
+            String userPrompt = buildUserPrompt(request.getPrompt(), context, request);
 
             // Step 4: Call LLM to generate mindmap
             String mindMapJson = callLLM(systemPrompt, userPrompt);
@@ -215,17 +215,17 @@ public class MindMapServiceImpl implements MindMapService {
         prompt.append("Chủ đề: ").append(userQuery).append("\n\n");
 
         // Add optional parameters
-        if (request.maxDepth() != null) {
-            prompt.append("Độ sâu tối đa: ").append(request.maxDepth()).append(" cấp\n");
+        if (request.getMaxDepth() != null) {
+            prompt.append("Độ sâu tối đa: ").append(request.getMaxDepth()).append(" cấp\n");
         }
 
-        if (request.minNodes() != null) {
-            prompt.append("Số lượng node tối thiểu: ").append(request.minNodes()).append("\n");
+        if (request.getMinNodes() != null) {
+            prompt.append("Số lượng node tối thiểu: ").append(request.getMinNodes()).append("\n");
         }
 
-        if (request.focusAreas() != null && !request.focusAreas().isEmpty()) {
+        if (request.getFocusAreas() != null && !request.getFocusAreas().isEmpty()) {
             prompt.append("Các khía cạnh cần tập trung: ")
-                    .append(String.join(", ", request.focusAreas()))
+                    .append(String.join(", ", request.getFocusAreas()))
                     .append("\n");
         }
 
@@ -282,8 +282,8 @@ public class MindMapServiceImpl implements MindMapService {
         try {
             MindMapHistory history = MindMapHistory.builder()
                     .historyId(UUID.randomUUID().toString())
-                    .userId(request.userId())
-                    .prompt(request.prompt())
+                    .userId(request.getUserId())
+                    .prompt(request.getPrompt())
                     .mindMapJson(objectMapper.writeValueAsString(structure))
                     .sourceDocuments(chunks.stream()
                             .map(RetrievedChunkDto::documentId)
