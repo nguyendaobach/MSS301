@@ -18,15 +18,15 @@ public abstract class QuizAttemptAnswerMapper {
     @Autowired
     protected QuizAnswerKeyRepository answerKeyRepository;
 
-    public List<QuizAttemptAnswerResponse> toResponseList(QuizAttempt attempt) {
-        if (attempt.getAnswers() == null || attempt.getAnswers().isEmpty()) return List.of();
+    public List<QuizAttemptAnswerResponse> toResponseList(List<QuizAttemptAnswer> answers) {
+        if (answers == null || answers.isEmpty()) return List.of();
 
+        // Lấy QuizAttempt và Quiz từ phần tử đầu tiên
+        QuizAttempt attempt = answers.get(0).getQuizAttempt();
         QuizAnswerKey answerKey = answerKeyRepository.findByQuiz(attempt.getQuiz())
                 .orElseThrow(() -> new AppException(ErrorCode.ANSWER_KEY_NOT_FOUND));
 
-        QuizAttemptAnswer attemptAnswer = attempt.getAnswers().get(0);
-
-        return attemptAnswer.getAnswers().entrySet().stream()
+        return answers.get(0).getAnswers().entrySet().stream()
                 .map(entry -> {
                     Integer qId = entry.getKey();
                     String selected = entry.getValue();

@@ -123,13 +123,29 @@ public class QuizController {
                 .build();
     }
 
-    @GetMapping("/attempts/{attemptId}")
-    public ApiResponse<QuizAttemptResponse> getAttemptDetail(@PathVariable String attemptId) {
-        return ApiResponse.<QuizAttemptResponse>builder()
-                .result(quizService.getAttemptDetail(attemptId))
-                .message("Get attempt detail successfully")
+    @GetMapping("/attempts")
+    public ApiResponse<List<QuizAttemptResponse>> getUserAttempts(HttpServletRequest request) {
+        String userId = HeaderExtractor.getUserId(request);
+        List<QuizAttemptResponse> attempts = quizService.getUserAttempts(userId);
+
+        return ApiResponse.<List<QuizAttemptResponse>>builder()
+                .code(1000)
+                .message("Get user attempts successfully")
+                .result(attempts)
                 .build();
     }
+
+    @GetMapping("/attempts/{attemptId}")
+    public ApiResponse<QuizAttemptResponse> getAttemptDetail(@PathVariable String attemptId) {
+        QuizAttemptResponse detail = quizService.getAttemptDetail(attemptId);
+
+        return ApiResponse.<QuizAttemptResponse>builder()
+                .code(1000)
+                .message("Get attempt detail successfully")
+                .result(detail)
+                .build();
+    }
+<<<<<<< Updated upstream
 
     @GetMapping("/attempts/history")
     public ApiResponse<List<QuizAttemptResponse>> getUserAttempts(HttpServletRequest httpServletRequest) {
@@ -141,4 +157,6 @@ public class QuizController {
     }
 
 
+=======
+>>>>>>> Stashed changes
 }

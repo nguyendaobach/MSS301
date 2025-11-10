@@ -14,7 +14,7 @@ public class RoleAccessMatcher {
     private static final List<RoleAccessRule> RULES = List.of(
             //GET
             new RoleAccessRule(HttpMethod.GET,
-                    List.of(""),
+                    List.of("/quiz/quizzes/attempts/**"),
                     List.of("STUDENT", "TEACHER", "ADMIN")),
 
             new RoleAccessRule(HttpMethod.GET,

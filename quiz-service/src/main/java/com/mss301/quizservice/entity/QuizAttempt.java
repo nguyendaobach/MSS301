@@ -29,14 +29,14 @@ public class QuizAttempt {
     @ManyToOne
     @JoinColumn(name = "quiz_id")
     @JsonBackReference
-    private Quiz quiz;
+    Quiz quiz;
     String userId;
     Timestamp startedAt;
     Timestamp completedAt;
     Double score;
     @Enumerated(EnumType.STRING)
     Status status;
-    @OneToMany(mappedBy = "quizAttempt", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "quizAttempt", fetch =  FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     List<QuizAttemptAnswer> answers = new ArrayList<>();
 
 
