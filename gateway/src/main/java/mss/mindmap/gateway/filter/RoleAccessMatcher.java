@@ -24,7 +24,7 @@ public class RoleAccessMatcher {
                     List.of("STUDENT")),
 
             new RoleAccessRule(HttpMethod.POST,
-                    List.of("/quiz/quizzes/",
+                    List.of("/quiz/quizzes",
                             "/quiz/quizzes/{quizId}/answer-key",
                             "/quiz/flies/upload"),
                     List.of("TEACHER", "ADMIN")),
