@@ -17,10 +17,10 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/admin/auth")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 @Tag(name = "Authentication Info", description = "APIs for extracting user information from token")
-@SecurityRequirement(name = "Bearer Authentication")
+@SecurityRequirement(name = "bearerAuth")
 public class AuthInfoController {
 
     private final JwtUtils jwtUtils;

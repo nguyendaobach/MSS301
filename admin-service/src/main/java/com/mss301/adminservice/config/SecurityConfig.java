@@ -15,13 +15,18 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    /**
+     * Disable auto-registration of JwtAuthenticationFilter
+     * The filter is already a @Component and extends OncePerRequestFilter,
+     * so Spring will automatically register it for ALL requests.
+     * We disable the default registration to avoid double-filtering.
+     */
     @Bean
-    public FilterRegistrationBean<JwtAuthenticationFilter> jwtFilter() {
-        FilterRegistrationBean<JwtAuthenticationFilter> registrationBean = new FilterRegistrationBean<>();
-        registrationBean.setFilter(jwtAuthenticationFilter);
-        registrationBean.addUrlPatterns("/admin/*");
-        registrationBean.setOrder(1);
-        return registrationBean;
+    public FilterRegistrationBean<JwtAuthenticationFilter> jwtFilterRegistration() {
+        FilterRegistrationBean<JwtAuthenticationFilter> registration =
+            new FilterRegistrationBean<>(jwtAuthenticationFilter);
+        registration.setEnabled(true); // Disable auto-registration
+        return registration;
     }
 
     @Bean

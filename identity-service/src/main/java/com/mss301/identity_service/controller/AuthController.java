@@ -1,17 +1,10 @@
 package com.mss301.identity_service.controller;
 
-import com.mss301.identity_service.config.JwtUtils;
 import com.mss301.identity_service.dto.ResponseApi;
-import com.mss301.identity_service.dto.request.LoginRequestDTO;
-import com.mss301.identity_service.dto.request.RegisterRequestDTO;
-import com.mss301.identity_service.dto.request.RegisterWithOtpRequestDTO;
-import com.mss301.identity_service.dto.request.TokenVerificationRequestDTO;
-import com.mss301.identity_service.dto.request.VerifyOtpRequestDTO;
+import com.mss301.identity_service.dto.request.*;
 import com.mss301.identity_service.dto.response.LoginResponse;
 import com.mss301.identity_service.dto.response.TokenVerificationResponse;
-import com.mss301.identity_service.entity.User;
 import com.mss301.identity_service.service.UserService;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,12 +14,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Date;
-import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
@@ -35,7 +24,6 @@ import java.util.List;
 public class AuthController {
 
     private final UserService userService;
-    private final JwtUtils jwtUtils;
 
     @Operation(
         summary = "Đăng nhập người dùng",
@@ -129,7 +117,34 @@ public class AuthController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
+    @Operation(
+        summary = "Quên mật khẩu",
+        description = "API yêu cầu đặt lại mật khẩu, gửi mã OTP đến email người dùng"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Đã gửi mã OTP đến email"),
+        @ApiResponse(responseCode = "404", description = "Email không tồn tại trong hệ thống"),
+        @ApiResponse(responseCode = "500", description = "Lỗi server hoặc lỗi gửi email")
+    })
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ResponseApi<String>> forgotPassword(@Valid @RequestBody ForgotPasswordRequestDTO request) {
+        ResponseApi<String> response = userService.forgotPassword(request);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
 
-
-
+    @Operation(
+        summary = "Đặt lại mật khẩu",
+        description = "API xác thực mã OTP và đặt lại mật khẩu mới cho người dùng"
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Đặt lại mật khẩu thành công"),
+        @ApiResponse(responseCode = "400", description = "Mã OTP không hợp lệ hoặc đã hết hạn"),
+        @ApiResponse(responseCode = "404", description = "Người dùng không tồn tại"),
+        @ApiResponse(responseCode = "500", description = "Lỗi server")
+    })
+    @PostMapping("/reset-password")
+    public ResponseEntity<ResponseApi<String>> resetPassword(@Valid @RequestBody ResetPasswordRequestDTO request) {
+        ResponseApi<String> response = userService.resetPassword(request);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
 }

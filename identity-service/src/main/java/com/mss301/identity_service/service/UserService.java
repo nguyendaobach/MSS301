@@ -20,4 +20,8 @@ public interface UserService {
     // Phương thức xác thực token chi tiết
     ResponseApi<TokenVerificationResponse> introspect(TokenVerificationRequestDTO request);
     ResponseApi<List<User>> getUser();
+
+    // Phương thức quên mật khẩu
+    ResponseApi<String> forgotPassword(ForgotPasswordRequestDTO request);
+    ResponseApi<String> resetPassword(ResetPasswordRequestDTO request);
 }

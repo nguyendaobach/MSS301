@@ -30,10 +30,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Skip authentication for health check and swagger endpoints
         String path = request.getRequestURI();
-        if (path.contains("/health") ||
+
+        // Public endpoints - no authentication required
+        if (path.startsWith("/health") ||
             path.contains("/swagger-ui") ||
             path.contains("/v3/api-docs") ||
-            path.contains("/swagger-resources")) {
+            path.contains("/swagger-resources") ||
+            path.contains("/webjars/") ||
+            path.equals("/")) {
+
+            log.debug("Skipping JWT authentication for public endpoint: {}", path);
             filterChain.doFilter(request, response);
             return;
         }
@@ -42,6 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = extractTokenFromRequest(request);
 
             if (token == null || !jwtUtils.validateToken(token)) {
+                log.warn("Authentication failed for path: {} - Invalid or missing token", path);
                 sendUnauthorizedResponse(response, "Invalid or missing token");
                 return;
             }

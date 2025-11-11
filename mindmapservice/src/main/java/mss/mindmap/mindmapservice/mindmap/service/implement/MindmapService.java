@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 public class MindmapService implements IMindmapService {
     private final IMindmapRepository mindmapRepository;
 
-    private final MindmapMapper mapper;
     private final MindmapMapper mindmapMapper ;
     private final HeaderExtractor headerExtractor;
 

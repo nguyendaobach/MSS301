@@ -18,10 +18,10 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("/")
 @RequiredArgsConstructor
 @Tag(name = "Admin Management", description = "APIs for managing users (Admin only)")
-@SecurityRequirement(name = "Bearer Authentication")
+@SecurityRequirement(name = "bearerAuth")
 public class AdminController {
 
     private final IAdminService adminService;
@@ -94,13 +94,5 @@ public class AdminController {
     public ResponseEntity<ResponseApi<UserStatsResponse>> getUserStats() {
         ResponseApi<UserStatsResponse> response = adminService.getUserStats();
         return ResponseEntity.status(response.getStatus()).body(response);
-    }
-
-    @GetMapping("/health")
-    @Operation(summary = "Health check", description = "Check if service is running")
-    public ResponseEntity<ResponseApi<String>> healthCheck() {
-        return ResponseEntity.ok(
-            new ResponseApi<>(200, "Admin Service đang hoạt động", "OK")
-        );
     }
 }

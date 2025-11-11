@@ -28,12 +28,15 @@ public class Edges extends BaseEntity {
     private String label;
 
     @ManyToOne
-    @JoinColumn(name = "souceNodeId")
+    @JoinColumn(name = "souce_node_id", nullable = false, foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (souce_node_id) REFERENCES mindmap_node(id) ON DELETE CASCADE"))
     private Nodes sourceNode;
 
     @ManyToOne
-    @JoinColumn(name = "targetNodeId")
+    @JoinColumn(name = "target_node_id", nullable = false, foreignKey = @ForeignKey(foreignKeyDefinition = "FOREIGN KEY (target_node_id) REFERENCES mindmap_node(id) ON DELETE CASCADE"))
     private Nodes targetNode;
+
+    private String sourceHandle;
+    private String targetHandle;
 
 
 
