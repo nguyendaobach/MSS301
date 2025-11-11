@@ -12,6 +12,7 @@ app:
     premium: /premium
     mindmap: /mindmap
     identity: /identity
+    admin: /admin
     documents: /documents
     vector: /vector
     ai: /ai
@@ -48,7 +49,7 @@ spring:
               predicates:
                 - Path=${app.api-prefix}${app.service-prefix.premium}/**
               filters:
-                - RewritePath=${app.api-prefix}${app.service-prefix.premium}/(?<segment>.*), /${segment}
+                - RewritePath=${app.api-prefix}/(?<segment>.*), /${segment}
 
             # 8804
             - id: mind-map-service
@@ -65,6 +66,14 @@ spring:
                 - Path=${app.api-prefix}${app.service-prefix.identity}/**
               filters:
                 - RewritePath=${app.api-prefix}${app.service-prefix.identity}/(?<segment>.*), /${segment}
+
+            # 8810 - Admin Service
+            - id: admin-service
+              uri: lb://admin-service
+              predicates:
+                - Path=${app.api-prefix}${app.service-prefix.admin}/**
+              filters:
+                - RewritePath=${app.api-prefix}${app.service-prefix.admin}/(?<segment>.*), /${segment}
 
             # 8806
             - id: ownership-service
@@ -110,6 +119,8 @@ springdoc:
         url: ${app.api-prefix}${app.service-prefix.mindmap}/v3/api-docs
       - name: identity-service
         url: ${app.api-prefix}${app.service-prefix.identity}/v3/api-docs
+      - name: admin-service
+        url: ${app.api-prefix}${app.service-prefix.admin}/v3/api-docs
       - name: ownership-service
         url: ${app.api-prefix}/ownership/v3/api-docs
       - name: ai-service

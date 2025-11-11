@@ -355,4 +355,96 @@ public class UserServiceImpl implements UserService {
                 .success(true)
                 .build();
     }
+
+    @Override
+    public ResponseApi<String> forgotPassword(ForgotPasswordRequestDTO request) {
+        // Kiểm tra email có tồn tại trong hệ thống không
+        if (!userRepository.existsByEmail(request.getEmail())) {
+            return ResponseApi.<String>builder()
+                    .status(HttpStatus.NOT_FOUND.value())
+                    .message("Email không tồn tại trong hệ thống")
+                    .build();
+        }
+
+        try {
+            // Tạo mã OTP cho việc reset password
+            String otpCode = otpService.generateOtp(request.getEmail());
+
+            // Gửi email chứa mã OTP
+            emailService.sendPasswordResetEmail(request.getEmail(), otpCode);
+
+            return ResponseApi.<String>builder()
+                    .status(HttpStatus.OK.value())
+                    .message("Mã xác thực đặt lại mật khẩu đã được gửi đến email của bạn")
+                    .data("Vui lòng kiểm tra email để lấy mã xác thực")
+                    .success(true)
+                    .build();
+        } catch (MessagingException e) {
+            log.error("Lỗi khi gửi email reset password: {}", e.getMessage());
+            return ResponseApi.<String>builder()
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message("Lỗi khi gửi email: " + e.getMessage())
+                    .success(false)
+                    .build();
+        } catch (Exception e) {
+            log.error("Lỗi khi xử lý quên mật khẩu: {}", e.getMessage());
+            return ResponseApi.<String>builder()
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message("Lỗi khi xử lý yêu cầu: " + e.getMessage())
+                    .success(false)
+                    .build();
+        }
+    }
+
+    @Override
+    @Transactional
+    public ResponseApi<String> resetPassword(ResetPasswordRequestDTO request) {
+        // Xác thực mã OTP
+        boolean isValidOtp = otpService.validateOtp(request.getEmail(), request.getOtpCode());
+
+        if (!isValidOtp) {
+            return ResponseApi.<String>builder()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .message("Mã OTP không hợp lệ hoặc đã hết hạn")
+                    .success(false)
+                    .build();
+        }
+
+        // Tìm user theo email
+        Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
+
+        if (userOptional.isEmpty()) {
+            return ResponseApi.<String>builder()
+                    .status(HttpStatus.NOT_FOUND.value())
+                    .message("Người dùng không tồn tại")
+                    .success(false)
+                    .build();
+        }
+
+        try {
+            User user = userOptional.get();
+
+            // Cập nhật mật khẩu mới
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            user.setUpdatedAt(OffsetDateTime.now());
+
+            userRepository.save(user);
+
+            log.info("Password reset successfully for user: {}", request.getEmail());
+
+            return ResponseApi.<String>builder()
+                    .status(HttpStatus.OK.value())
+                    .message("Đặt lại mật khẩu thành công")
+                    .data("Bạn có thể đăng nhập bằng mật khẩu mới")
+                    .success(true)
+                    .build();
+        } catch (Exception e) {
+            log.error("Lỗi khi đặt lại mật khẩu: {}", e.getMessage());
+            return ResponseApi.<String>builder()
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message("Lỗi khi đặt lại mật khẩu: " + e.getMessage())
+                    .success(false)
+                    .build();
+        }
+    }
 }

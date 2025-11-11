@@ -12,19 +12,52 @@ public class RoleAccessMatcher {
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     private static final List<RoleAccessRule> RULES = List.of(
+            // Admin Service - User Management
+            // GET - View users, stats (ADMIN, SUPER_ADMIN only)
+            new RoleAccessRule(HttpMethod.GET,
+                    List.of("/admin/users", "/admin/users/*", "/admin/users/role/*", "/admin/stats"),
+                    List.of("ADMIN", "SUPER_ADMIN")),
+
+            // GET - Health check and auth info (ADMIN, SUPER_ADMIN)
+            new RoleAccessRule(HttpMethod.GET,
+                    List.of("/admin/health", "/admin/auth/**"),
+                    List.of("ADMIN", "SUPER_ADMIN")),
+
+            // POST - Create users, extract roles (ADMIN, SUPER_ADMIN)
+            new RoleAccessRule(HttpMethod.POST,
+                    List.of("/admin/users", "/admin/auth/roles/extract"),
+                    List.of("ADMIN", "SUPER_ADMIN")),
+
+            // PUT - Update users (ADMIN, SUPER_ADMIN)
+            new RoleAccessRule(HttpMethod.PUT,
+                    List.of("/admin/users/*"),
+                    List.of("ADMIN", "SUPER_ADMIN")),
+
+            // DELETE - Delete users (SUPER_ADMIN only - highest permission)
+            new RoleAccessRule(HttpMethod.DELETE,
+                    List.of("/admin/users/*"),
+                    List.of("SUPER_ADMIN")),
+
+            // PATCH - Toggle user status (ADMIN, SUPER_ADMIN)
+            new RoleAccessRule(HttpMethod.PATCH,
+                    List.of("/admin/users/*/toggle-status"),
+                    List.of("ADMIN", "SUPER_ADMIN")),
+
+            // Quiz Service
             //GET
             new RoleAccessRule(HttpMethod.GET,
-                    List.of(""),
+                    List.of("/quiz/quizzes/attempts/**"),
                     List.of("STUDENT", "TEACHER", "ADMIN")),
 
             new RoleAccessRule(HttpMethod.GET,
                     List.of(
-                            "/quiz/quizzes/attempts/*"
+                            "/quiz/quizzes/attempts/*",
+                            "/quiz/quizzes/attempts/history"
                     ),
                     List.of("STUDENT")),
 
             new RoleAccessRule(HttpMethod.POST,
-                    List.of("/quiz/quizzes/",
+                    List.of("/quiz/quizzes",
                             "/quiz/quizzes/{quizId}/answer-key",
                             "/quiz/flies/upload"),
                     List.of("TEACHER", "ADMIN")),
