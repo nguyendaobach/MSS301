@@ -128,7 +128,7 @@ public class QuizController {
         QuizAttemptResponse detail = quizService.getAttemptDetail(attemptId);
 
         return ApiResponse.<QuizAttemptResponse>builder()
-                .result(quizService.getAttemptDetail(attemptId))
+                .code(1000)
                 .message("Get attempt detail successfully")
                 .result(detail)
                 .build();

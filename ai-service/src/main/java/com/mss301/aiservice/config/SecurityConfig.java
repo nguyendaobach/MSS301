@@ -1,4 +1,4 @@
-package mss.mindmap.mindmapservice.mindmap.config;
+package com.mss301.aiservice.config;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -62,7 +62,7 @@ public class SecurityConfig extends OncePerRequestFilter {
                 "http://localhost:3000",
                 "http://localhost:3001",
                 "http://localhost:8080",
-                "http://localhost:8084"
+                "http://localhost:8087"
             ));
             config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
             config.setAllowedHeaders(List.of("*"));

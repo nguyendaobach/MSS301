@@ -130,9 +130,13 @@ public class RoleAccessMatcher {
                     List.of("/vectors/embed-and-store"),
                     List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
 
-            //GET
+            //DELETE
             new RoleAccessRule(HttpMethod.DELETE,
                     List.of("/documents/documents/**"),
+                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
+
+            new RoleAccessRule(HttpMethod.GET,
+                               List.of("/premium/**"),
                     List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER"))
     );
 

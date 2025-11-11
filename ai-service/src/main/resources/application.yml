@@ -36,7 +36,9 @@ vector:
 
 mindmap:
   rag:
-    top-k: 5
+    top-k: 30
+  max-depth: 50
+  min-nodes: 30
   llm:
     model: gpt-4-turbo-preview
 
