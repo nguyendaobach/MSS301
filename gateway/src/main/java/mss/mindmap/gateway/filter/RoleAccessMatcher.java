@@ -19,7 +19,8 @@ public class RoleAccessMatcher {
 
             new RoleAccessRule(HttpMethod.GET,
                     List.of(
-                            "/quiz/quizzes/attempts/*"
+                            "/quiz/quizzes/attempts/*",
+                            "/quiz/quizzes/attempts/history"
                     ),
                     List.of("STUDENT")),
 

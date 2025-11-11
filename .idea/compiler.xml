@@ -32,13 +32,15 @@
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.40/lombok-1.18.40.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok-mapstruct-binding/0.2.0/lombok-mapstruct-binding-0.2.0.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.5.5.Final/mapstruct-processor-1.5.5.Final.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.5.5.Final/mapstruct-1.5.5.Final.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.5.5.Final/mapstruct-processor-1.5.5.Final.jar" />
+          <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.5.5.Final/mapstruct-1.5.5.Final.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.40/lombok-1.18.40.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok-mapstruct-binding/0.2.0/lombok-mapstruct-binding-0.2.0.jar" />
         </processorPath>
         <module name="mindmapservice" />
       </profile>
-      <profile name="Annotation profile for gateway" enabled="true">
+      <profile name="Annotation profile for premium-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -48,6 +50,7 @@
         <module name="vector-service" />
         <module name="ownership-service" />
         <module name="identity-service" />
+        <module name="premium-service" />
         <module name="gateway" />
         <module name="ai-service" />
         <module name="document-service" />
@@ -56,7 +59,6 @@
     <bytecodeTargetLevel>
       <module name="config" target="17" />
       <module name="eureka-service" target="17" />
-      <module name="premium-service" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
@@ -70,6 +72,7 @@
       <module name="identity-service" options="-parameters" />
       <module name="mindmapservice" options="-parameters" />
       <module name="ownership-service" options="-parameters" />
+      <module name="premium-service" options="-parameters" />
       <module name="quiz-service" options="-parameters -Amapstruct.suppressGeneratorTimestamp=true -Amapstruct.defaultComponentModel=spring -Amapstruct.verbose=true" />
       <module name="vector-service" options="-parameters" />
     </option>
