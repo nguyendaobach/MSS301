@@ -75,18 +75,30 @@ public class MindMapServiceImpl implements MindMapService {
     public MindMapResponse generateMindMap(MindMapRequest request) {
         log.info("Starting mindmap generation for user: {}", request.getUserId());
 
-        try {
+        List<RetrievedChunkDto> relevantChunks = Collections.emptyList();
+        String context;
+
+        // Check if user wants to use RAG (with specific documents)
+        if (request.getDocumentIds() != null && !request.getDocumentIds().isEmpty()) {
+            log.info("Using RAG with specific documents: {}", request.getDocumentIds());
+
             // Step 1: RAG - Retrieve relevant context from user's documents
-            List<RetrievedChunkDto> relevantChunks = retrieveContext(
+            relevantChunks = retrieveContext(
                     request.getPrompt(),
-                    request.getUserId()
+                    request.getUserId(),
+                    request.getDocumentIds()
             );
 
             log.info("Retrieved {} relevant chunks", relevantChunks.size());
 
             // Step 2: Build context from retrieved chunks
-            String context = buildContextFromChunks(relevantChunks);
+            context = buildContextFromChunks(relevantChunks);
+        } else {
+            log.info("Using pure LLM mode (no RAG) - no documents specified");
+            context = "Không có thông tin từ tài liệu. Hãy tạo mindmap dựa trên kiến thức chung.";
+        }
 
+        try {
             // Step 3: Build prompts for LLM
             String systemPrompt = buildSystemPrompt();
             String userPrompt = buildUserPrompt(request.getPrompt(), context, request);
@@ -114,12 +126,13 @@ public class MindMapServiceImpl implements MindMapService {
         }
     }
 
-    private List<RetrievedChunkDto> retrieveContext(String query, String userId) {
+    private List<RetrievedChunkDto> retrieveContext(String query, String userId, List<String> documentIds) {
         try {
             ApiResponse<List<RetrievedChunkDto>> response = vectorServiceClient.retrieveChunks(
                     RetrievalRequest.builder()
                             .query(query)
                             .userId(userId)
+                            .documentIds(documentIds)
                             .topK(ragTopK)
                             .build()
             );
@@ -274,6 +287,15 @@ public class MindMapServiceImpl implements MindMapService {
         }
     }
 
+    private MindMapResponse.MindMapStructure.MindMapNode parseNodeJson(String json) {
+        try {
+            return objectMapper.readValue(json, MindMapResponse.MindMapStructure.MindMapNode.class);
+        } catch (JsonProcessingException e) {
+            log.error("Error parsing mindmap node JSON: {}", json, e);
+            throw new RuntimeException("Failed to parse mindmap node JSON", e);
+        }
+    }
+
     private void saveMindmapHistory(
             MindMapRequest request,
             MindMapResponse.MindMapStructure structure,
@@ -302,16 +324,86 @@ public class MindMapServiceImpl implements MindMapService {
     }
 
     public MindMapResponse.MindMapStructure.MindMapNode regenerateNode(RegenerateNodeRequest request) {
-        // Implementation for regenerating a specific node
-        // This would call LLM with focus on that specific node
-        log.info("Regenerating node: {}", request.nodeId());
-        throw new UnsupportedOperationException("Not implemented yet");
+        log.info("Regenerating node: {} for user: {}", request.nodeId(), request.userId());
+
+        // Build query: prefer additionalContext, otherwise fallback to nodeId as a hint
+        String query = (request.additionalContext() != null && !request.additionalContext().isBlank())
+                ? request.additionalContext()
+                : "Regenerate content for node: " + request.nodeId();
+
+        String context;
+
+        // Check if user wants to use RAG
+        if (request.documentIds() != null && !request.documentIds().isEmpty()) {
+            log.info("Using RAG with specific documents for regenerate");
+            List<RetrievedChunkDto> relevantChunks = retrieveContext(query, request.userId(), request.documentIds());
+            context = buildContextFromChunks(relevantChunks);
+        } else {
+            log.info("Using pure LLM mode for regenerate (no documents)");
+            context = "Không có thông tin từ tài liệu. Hãy tái tạo node dựa trên kiến thức chung.";
+        }
+
+        // Build a focused prompt for regenerating a single node
+        StringBuilder userPrompt = new StringBuilder();
+        userPrompt.append(context).append("\n\n");
+        userPrompt.append("Yêu cầu: Tái tạo nội dung cho node có id '")
+                .append(request.nodeId())
+                .append("'. Hãy trả về một đối tượng JSON duy nhất mô tả node theo định dạng: {\"id\":..., \"label\":..., \"level\":..., \"parent\":..., \"children\":[...], \"description\":... }\\n");
+        if (request.additionalContext() != null && !request.additionalContext().isBlank()) {
+            userPrompt.append("Thông tin bổ sung: ").append(request.additionalContext()).append("\n");
+        }
+        userPrompt.append("Chỉ sử dụng thông tin từ context nếu có. Trả về ĐÚNG JSON, không thêm bình luận.");
+
+        String systemPrompt = buildSystemPrompt();
+        String llmResponse = callLLM(systemPrompt, userPrompt.toString());
+
+        // Try to parse a single node
+        MindMapResponse.MindMapStructure.MindMapNode node = parseNodeJson(llmResponse);
+
+        return node;
     }
 
     public MindMapResponse expandNode(ExpandNodeRequest request) {
-        // Implementation for expanding a node with more children
-        log.info("Expanding node: {}", request.nodeId());
-        throw new UnsupportedOperationException("Not implemented yet");
+        log.info("Expanding node: {} for user: {}", request.nodeId(), request.userId());
+
+        String query = "Expand node: " + request.nodeId();
+        String context;
+        List<RetrievedChunkDto> relevantChunks = Collections.emptyList();
+
+        // Check if user wants to use RAG
+        if (request.documentIds() != null && !request.documentIds().isEmpty()) {
+            log.info("Using RAG with specific documents for expand");
+            relevantChunks = retrieveContext(query, request.userId(), request.documentIds());
+            context = buildContextFromChunks(relevantChunks);
+        } else {
+            log.info("Using pure LLM mode for expand (no documents)");
+            context = "Không có thông tin từ tài liệu. Hãy mở rộng node dựa trên kiến thức chung.";
+        }
+
+        int numChildren = (request.numberOfChildren() != null && request.numberOfChildren() > 0)
+                ? request.numberOfChildren()
+                : 3;
+
+        StringBuilder userPrompt = new StringBuilder();
+        userPrompt.append(context).append("\n\n");
+        userPrompt.append("Yêu cầu: Mở rộng node có id '")
+                .append(request.nodeId())
+                .append("' bằng cách tạo ")
+                .append(numChildren)
+                .append(" node con phù hợp. Trả về một cấu trúc mindmap JSON (theo định dạng đã quy định) chỉ chứa các node mới và node cha nếu cần.\n");
+        userPrompt.append("Chỉ sử dụng thông tin từ context nếu có. Trả về ĐÚNG JSON, không thêm bình luận.");
+
+        String systemPrompt = buildSystemPrompt();
+        String llmResponse = callLLM(systemPrompt, userPrompt.toString());
+
+        // Parse the returned structure (may contain multiple nodes)
+        MindMapResponse.MindMapStructure structure = parseMindmapJson(llmResponse);
+        // Return a MindMapResponse with generated structure and source chunks
+        return MindMapResponse.builder()
+                .mindMap(structure)
+                .sourceChunks(relevantChunks)
+                .generatedAt(LocalDateTime.now())
+                .build();
     }
 
     public List<MindMapHistory> getUserHistory(String userId) {
