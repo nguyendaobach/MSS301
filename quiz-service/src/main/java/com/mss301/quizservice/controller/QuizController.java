@@ -133,6 +133,7 @@ public class QuizController {
                 .result(detail)
                 .build();
     }
+
     @GetMapping("/attempts/history")
     public ApiResponse<List<QuizAttemptResponse>> getUserAttempts(HttpServletRequest httpServletRequest) {
         String userId = HeaderExtractor.getUserId(httpServletRequest);
@@ -141,4 +142,5 @@ public class QuizController {
                 .message("Get user attempts successfully")
                 .build();
     }
+
 }
