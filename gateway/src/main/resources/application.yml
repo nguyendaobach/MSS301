@@ -48,7 +48,7 @@ spring:
               predicates:
                 - Path=${app.api-prefix}${app.service-prefix.premium}/**
               filters:
-                - RewritePath=${app.api-prefix}${app.service-prefix.premium}/(?<segment>.*), /${segment}
+                - RewritePath=${app.api-prefix}/(?<segment>.*), /${segment}
 
             # 8804
             - id: mind-map-service

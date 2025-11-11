@@ -37,8 +37,8 @@ public class PublicUrlMatcher {
                     "/webjars/**",
                     "/*-service/v3/api-docs/**",
                     "/*-service/swagger-ui/**",
-                    "/quiz/quizzes/*",
-                    "/quiz/quizzes"
+                    "/quiz/quizzes",
+                    "/quiz/quizzes/*"
             ))
     );
 
