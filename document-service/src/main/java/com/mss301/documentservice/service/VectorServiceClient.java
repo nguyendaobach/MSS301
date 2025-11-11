@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.*;
 @FeignClient(name = "vector-service", url = "${vector.service.url}")
 public interface VectorServiceClient {
 
-    @PostMapping("/api/vectors/embed-and-store")
+    @PostMapping("/vectors/embed-and-store")
     void embedAndStore(@RequestBody EmbedRequest request);
 
-    @DeleteMapping("/api/vectors/document/{documentId}")
+    @DeleteMapping("/vectors/document/{documentId}")
     void deleteDocument(@PathVariable String documentId);
 }

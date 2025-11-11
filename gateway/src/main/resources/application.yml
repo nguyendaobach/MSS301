@@ -12,7 +12,7 @@ app:
     premium: /premium
     mindmap: /mindmap
     identity: /identity
-    ownership: /ownership
+    admin: /admin
     documents: /documents
     vector: /vector
     ai: /ai
@@ -49,7 +49,7 @@ spring:
               predicates:
                 - Path=${app.api-prefix}${app.service-prefix.premium}/**
               filters:
-                - RewritePath=${app.api-prefix}${app.service-prefix.premium}/(?<segment>.*), /${segment}
+                - RewritePath=${app.api-prefix}/(?<segment>.*), /${segment}
 
             # 8804
             - id: mind-map-service
@@ -58,11 +58,6 @@ spring:
                 - Path=${app.api-prefix}${app.service-prefix.mindmap}/**
               filters:
                 - RewritePath=${app.api-prefix}${app.service-prefix.mindmap}/(?<segment>.*), /${segment}
-            #                - name: RequestRateLimiter
-            #                  args:
-            #                    redis-rate-limiter.replenishRate: 10 # 10 request mỗi giây
-            #                    redis-rate-limiter.burstCapacity: 20 # Tối đa cho phép 20 request dồn dập
-            #                    key-resolver: "#{@userKeyResolver}" # Dùng IP hoặc user ID để phân biệt client
 
             #8805
             - id: identity-service
@@ -72,26 +67,13 @@ spring:
               filters:
                 - RewritePath=${app.api-prefix}${app.service-prefix.identity}/(?<segment>.*), /${segment}
 
-            - id: ai-service
-              uri: lb://ai-service
+            # 8810 - Admin Service
+            - id: admin-service
+              uri: lb://admin-service
               predicates:
-                - Path=${app.api-prefix}${app.service-prefix.ai}/**
+                - Path=${app.api-prefix}${app.service-prefix.admin}/**
               filters:
-                - RewritePath=${app.api-prefix}${app.service-prefix.ai}/(?<segment>.*), /${segment}
-
-            - id: document-service
-              uri: lb://document-service
-              predicates:
-                - Path=${app.api-prefix}${app.service-prefix.documents}/**
-              filters:
-                - RewritePath=${app.api-prefix}${app.service-prefix.documents}/(?<segment>.*), /${segment}
-
-            - id: vector-service
-              uri: lb://vector-service
-              predicates:
-                - Path=${app.api-prefix}${app.service-prefix.vector}/**
-              filters:
-                - RewritePath=${app.api-prefix}${app.service-prefix.vector}/(?<segment>.*), /${segment}
+                - RewritePath=${app.api-prefix}${app.service-prefix.admin}/(?<segment>.*), /${segment}
 
             # 8806
             - id: ownership-service
@@ -101,6 +83,30 @@ spring:
               filters:
                 - RewritePath=${app.api-prefix}/ownership/(?<segment>.*), /${segment}
 
+            # 8807
+            - id: ai-service
+              uri: lb://ai-service
+              predicates:
+                - Path=${app.api-prefix}${app.service-prefix.ai}/**
+              filters:
+                - RewritePath=${app.api-prefix}${app.service-prefix.ai}/(?<segment>.*), /${segment}
+            # 8808
+            - id: document-service
+              uri: lb://document-service
+              predicates:
+                - Path=${app.api-prefix}${app.service-prefix.documents}/**
+              filters:
+                - RewritePath=${app.api-prefix}${app.service-prefix.documents}/(?<segment>.*), /${segment}
+            # 8809
+            - id: vector-service
+              uri: lb://vector-service
+              predicates:
+                - Path=${app.api-prefix}${app.service-prefix.vector}/**
+              filters:
+                - RewritePath=${app.api-prefix}${app.service-prefix.vector}/(?<segment>.*), /${segment}
+
+
+
 springdoc:
   api-docs:
     enabled: true
@@ -108,13 +114,23 @@ springdoc:
     enabled: true
     urls:
       - name: quiz-service
-        url: /quiz-service/v3/api-docs
+        url: ${app.api-prefix}${app.service-prefix.quiz}/v3/api-docs
       - name: mind-map-service
-        url: /mindmap-service/v3/api-docs
+        url: ${app.api-prefix}${app.service-prefix.mindmap}/v3/api-docs
       - name: identity-service
-        url: /identity-service/v3/api-docs
+        url: ${app.api-prefix}${app.service-prefix.identity}/v3/api-docs
+      - name: admin-service
+        url: ${app.api-prefix}${app.service-prefix.admin}/v3/api-docs
       - name: ownership-service
-        url: /ownership-service/v3/api-docs
+        url: ${app.api-prefix}/ownership/v3/api-docs
+      - name: ai-service
+        url: ${app.api-prefix}${app.service-prefix.ai}/v3/api-docs
+      - name: document-service
+        url: ${app.api-prefix}${app.service-prefix.documents}/v3/api-docs
+      - name: vector-service
+        url: ${app.api-prefix}${app.service-prefix.vector}/v3/api-docs
+    config-url: /v3/api-docs/swagger-config
+    path: /swagger-ui.html
 eureka:
   client:
     service-url:

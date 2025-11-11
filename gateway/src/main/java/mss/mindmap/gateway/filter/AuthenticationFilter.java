@@ -71,6 +71,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         }
 
         List<String> roles = jwtUtils.extractRoles(token);
+        log.info("roles: {}", roles);
         if (!roleAccessMatcher.isAuthorized(path, roles, method)) {
             return forbidden(exchange.getResponse(), "Access denied for " + method + " " + path);
         }

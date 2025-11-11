@@ -24,6 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Time;
@@ -48,6 +49,7 @@ public class QuizServiceImpl implements QuizService {
 
 
     @Override
+    @CrossOrigin(origins = "http://localhost:8080", allowedHeaders = "*", methods = {org.springframework.web.bind.annotation.RequestMethod.GET}, allowCredentials = "true")
     public List<QuizResponse> search(String category, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
 
@@ -207,19 +209,19 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public QuizAttemptResponse getAttemptDetail(String attemptId) {
-        QuizAttempt attempt = quizAttemptRepository.findById(attemptId)
+        QuizAttempt attempt = quizAttemptRepository.findByIdWithAnswers(attemptId)
                 .orElseThrow(() -> new AppException(ErrorCode.ATTEMPT_NOT_FOUND));
 
         return quizAttemptMapper.toResponse(attempt);
     }
 
-
     @Override
     public List<QuizAttemptResponse> getUserAttempts(String userId) {
         List<QuizAttempt> attempts = quizAttemptRepository.findByUserId(userId);
         return attempts.stream()
-                .map(quizAttemptMapper::toResponse)
+                .map(quizAttemptMapper::toResponseWithoutAnswers)
                 .toList();
     }
+
 
 }

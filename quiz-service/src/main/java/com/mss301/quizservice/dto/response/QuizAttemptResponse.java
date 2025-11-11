@@ -1,5 +1,6 @@
 package com.mss301.quizservice.dto.response;
 
+import com.mss301.quizservice.entity.Quiz;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -12,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class QuizAttemptResponse {
+    String quizId;
     String quizAttemptId;
     String userId;
     Timestamp startedAt;
