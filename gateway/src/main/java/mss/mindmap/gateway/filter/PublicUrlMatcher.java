@@ -21,7 +21,6 @@ public class PublicUrlMatcher {
 
 
             new PublicRule(HttpMethod.GET, List.of(
-                    "/quiz/quizzes/**",
                     // Swagger/OpenAPI documentation endpoints
                     "/quiz/v3/api-docs/**",
                     "/mindmap/v3/api-docs/**",
@@ -38,6 +37,7 @@ public class PublicUrlMatcher {
                     "/webjars/**",
                     "/*-service/v3/api-docs/**",
                     "/*-service/swagger-ui/**",
+                    "/quiz/quizzes",
                     "/quiz/quizzes/*"
             ))
     );

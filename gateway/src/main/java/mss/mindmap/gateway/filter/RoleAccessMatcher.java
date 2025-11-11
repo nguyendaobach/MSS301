@@ -46,17 +46,18 @@ public class RoleAccessMatcher {
             // Quiz Service
             //GET
             new RoleAccessRule(HttpMethod.GET,
-                    List.of(""),
+                    List.of("/quiz/quizzes/attempts/**"),
                     List.of("STUDENT", "TEACHER", "ADMIN")),
 
             new RoleAccessRule(HttpMethod.GET,
                     List.of(
-                            "/quiz/quizzes/attempts/*"
+                            "/quiz/quizzes/attempts/*",
+                            "/quiz/quizzes/attempts/history"
                     ),
                     List.of("STUDENT")),
 
             new RoleAccessRule(HttpMethod.POST,
-                    List.of("/quiz/quizzes/",
+                    List.of("/quiz/quizzes",
                             "/quiz/quizzes/{quizId}/answer-key",
                             "/quiz/flies/upload"),
                     List.of("TEACHER", "ADMIN")),

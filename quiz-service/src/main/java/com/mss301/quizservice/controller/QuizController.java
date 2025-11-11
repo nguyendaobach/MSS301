@@ -125,9 +125,12 @@ public class QuizController {
 
     @GetMapping("/attempts/{attemptId}")
     public ApiResponse<QuizAttemptResponse> getAttemptDetail(@PathVariable String attemptId) {
+        QuizAttemptResponse detail = quizService.getAttemptDetail(attemptId);
+
         return ApiResponse.<QuizAttemptResponse>builder()
-                .result(quizService.getAttemptDetail(attemptId))
+                .code(1000)
                 .message("Get attempt detail successfully")
+                .result(detail)
                 .build();
     }
 
@@ -139,6 +142,5 @@ public class QuizController {
                 .message("Get user attempts successfully")
                 .build();
     }
-
 
 }

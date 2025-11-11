@@ -209,19 +209,19 @@ public class QuizServiceImpl implements QuizService {
 
     @Override
     public QuizAttemptResponse getAttemptDetail(String attemptId) {
-        QuizAttempt attempt = quizAttemptRepository.findById(attemptId)
+        QuizAttempt attempt = quizAttemptRepository.findByIdWithAnswers(attemptId)
                 .orElseThrow(() -> new AppException(ErrorCode.ATTEMPT_NOT_FOUND));
 
         return quizAttemptMapper.toResponse(attempt);
     }
 
-
     @Override
     public List<QuizAttemptResponse> getUserAttempts(String userId) {
         List<QuizAttempt> attempts = quizAttemptRepository.findByUserId(userId);
         return attempts.stream()
-                .map(quizAttemptMapper::toResponse)
+                .map(quizAttemptMapper::toResponseWithoutAnswers)
                 .toList();
     }
+
 
 }
