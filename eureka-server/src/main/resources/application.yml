@@ -11,3 +11,13 @@ spring:
       password: 123456
 server:
   port: '8761'
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  prometheus:
+    metrics:
+      export:
+        enabled: true

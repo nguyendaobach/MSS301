@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import mss.mindmap.mindmapservice.mindmap.dto.request.NodeDto;
 import mss.mindmap.mindmapservice.mindmap.entity.Mindmap;
 import mss.mindmap.mindmapservice.mindmap.entity.Nodes;
-import mss.mindmap.mindmapservice.mindmap.repository.IMindmapRepository;
+import mss.mindmap.mindmapservice.mindmap.repository.MindmapRepository;
 import mss.mindmap.mindmapservice.mindmap.repository.NodeRepository;
 import mss.mindmap.mindmapservice.mindmap.service.INodeService;
 import org.springframework.stereotype.Service;
@@ -21,8 +21,8 @@ import java.util.UUID;
 public class NodeService implements INodeService {
 
     private final NodeRepository nodeRepository;
-    private final IMindmapRepository iMindmapRepository;
-    private final IMindmapRepository mindmapRepository;
+    private final MindmapRepository mindmapRepository;
+
 
     @Override
     public Optional<List<Nodes>> getAllNodesByMindmapId(UUID mindmapId) {
@@ -33,7 +33,7 @@ public class NodeService implements INodeService {
     @Override
     public void createNode(NodeDto nodeDto) {
         try{
-            Mindmap mindmap = iMindmapRepository.findById(nodeDto.getMindmap()).orElseThrow(() -> new EntityNotFoundException("MindMap not found"));
+            Mindmap mindmap = mindmapRepository.findById(nodeDto.getMindmap()).orElseThrow(() -> new EntityNotFoundException("MindMap not found"));
             Nodes node = Nodes.builder()
                     .id(nodeDto.getNodeId())
                     .label(nodeDto.getLabel())

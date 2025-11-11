@@ -11,6 +11,7 @@ public class MindMapRequest {
         private String userId;
         @NotBlank(message = "Prompt is required")
         private String prompt;
+        private List<String> documentIds; // Specific documents to use for context (optional)
         private Integer maxDepth;    // Max levels of the mindmap
         private Integer minNodes;     // Minimum number of nodes
         private List<String> focusAreas; // Specific topics to focus on

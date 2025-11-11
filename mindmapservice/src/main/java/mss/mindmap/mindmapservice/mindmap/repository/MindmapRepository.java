@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface IMindmapRepository extends JpaRepository<Mindmap, UUID> {
+public interface MindmapRepository extends JpaRepository<Mindmap, UUID> {
     Optional<List<Mindmap>> findByUserId(UUID userId);
-
+    int countByUserId(UUID userId);
 }

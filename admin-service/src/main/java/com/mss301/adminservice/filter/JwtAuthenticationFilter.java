@@ -33,6 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Public endpoints - no authentication required
         if (path.startsWith("/health") ||
+            path.startsWith("/actuator") ||
             path.contains("/swagger-ui") ||
             path.contains("/v3/api-docs") ||
             path.contains("/swagger-resources") ||
