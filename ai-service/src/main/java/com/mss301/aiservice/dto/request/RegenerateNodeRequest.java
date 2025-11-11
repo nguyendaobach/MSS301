@@ -2,6 +2,8 @@ package com.mss301.aiservice.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 
+import java.util.List;
+
 public record RegenerateNodeRequest(
         @NotBlank
         String userId,
@@ -9,6 +11,8 @@ public record RegenerateNodeRequest(
         @NotBlank
         String nodeId,
 
-        String additionalContext
+        String additionalContext,
+
+        List<String> documentIds // Specific documents to use for context (optional)
 ) {
 }
