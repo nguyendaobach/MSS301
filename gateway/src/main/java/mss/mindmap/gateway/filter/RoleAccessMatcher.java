@@ -89,9 +89,14 @@ public class RoleAccessMatcher {
                     List.of("/ai/ai/**"),
                     List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
             //GET
-            new RoleAccessRule(HttpMethod.PUT,
-                    List.of("/documents/documents/**"),
+            new RoleAccessRule(HttpMethod.POST,
+                    List.of("/vectors/vectors/**"),
                     List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
+
+            new RoleAccessRule(HttpMethod.POST,
+                    List.of("/vectors/embed-and-store"),
+                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
+
             //GET
             new RoleAccessRule(HttpMethod.DELETE,
                     List.of("/documents/documents/**"),

@@ -1,5 +1,5 @@
 server:
-  port: 8083
+  port: 8087
 
 spring:
   application:
@@ -7,9 +7,11 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5433/aiService
-    username: root
-    password: StrongP@ssword123
+    url: jdbc:postgresql://localhost:5432/aiService
+#    username: root
+#    password: StrongP@ssword123
+    username: "postgres"
+    password: "12345678"
 
   jpa:
     hibernate:
@@ -22,7 +24,7 @@ spring:
 
   ai:
     openai:
-      api-key: ${OPENAI_API_KEY}
+      api-key: 12345
       embedding:
         options:
           model: text-embedding-3-small
@@ -30,7 +32,7 @@ spring:
 # Custom properties (not under spring)
 vector:
   service:
-    url: ${VECTOR_SERVICE_URL:http://localhost:8082}
+    url: ${VECTOR_SERVICE_URL:http://localhost:8089}
 
 mindmap:
   rag:
@@ -42,3 +44,16 @@ eureka:
   client:
     service-url:
       defaultZone: http://eureka:123456@localhost:8761/eureka
+
+gateway:
+  secret: 4391D97158194
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  prometheus:
+    metrics:
+      export:
+        enabled: true

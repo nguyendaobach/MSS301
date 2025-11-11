@@ -29,4 +29,9 @@ public class PremiumServiceImpl implements PremiumService {
     public Premium findByUserId(String userId) {
         return premiumRepository.findByUserId(userId);
     }
+
+    @Override
+    public void premiumRequest(String userId) {
+
+    }
 }
