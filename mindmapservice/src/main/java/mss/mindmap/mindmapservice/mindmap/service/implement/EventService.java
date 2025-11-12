@@ -3,7 +3,7 @@ package mss.mindmap.mindmapservice.mindmap.service.implement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import mss.mindmap.mindmapservice.mindmap.dto.request.*;
-import mss.mindmap.mindmapservice.mindmap.repository.IMindmapRepository;
+import mss.mindmap.mindmapservice.mindmap.repository.MindmapRepository;
 import mss.mindmap.mindmapservice.mindmap.service.IEdgeService;
 import mss.mindmap.mindmapservice.mindmap.service.IEventService;
 import mss.mindmap.mindmapservice.mindmap.service.IMindmapService;
@@ -21,7 +21,7 @@ public class EventService implements IEventService {
     private final IEdgeService edgeService;
     private final INodeService nodeService;
     private final IMindmapService mindmapService;
-    private final IMindmapRepository mindmapRepository;
+    private final MindmapRepository mindmapRepository;
 
 
     @Override

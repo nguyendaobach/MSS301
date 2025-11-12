@@ -45,7 +45,7 @@
         </processorPath>
         <module name="admin-service" />
       </profile>
-      <profile name="Annotation profile for identity-service" enabled="true">
+      <profile name="Annotation profile for vector-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />

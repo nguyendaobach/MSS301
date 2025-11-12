@@ -41,6 +41,7 @@ public class PublicUrlMatcher {
                     "/*-service/swagger-ui/**",
                     "/quiz/quizzes",
                     "/quiz/quizzes/*"
+//                    "http://host.docker.internal:8810/actuator/prometheus"
             ))
     );
 

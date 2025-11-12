@@ -31,6 +31,17 @@ eureka:
 gateway:
   secret: 4391D97158194
 
+management:
+ endpoints:
+  web:
+   exposure:
+    include: health,info,prometheus
+ prometheus:
+  metrics:
+   export:
+    enabled: true
+
+
 
 
 

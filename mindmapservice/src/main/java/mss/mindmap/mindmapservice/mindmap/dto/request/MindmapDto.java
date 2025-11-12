@@ -6,6 +6,7 @@ import lombok.Data;
 import mss.mindmap.mindmapservice.mindmap.entity.Mindmap;
 
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Builder
@@ -14,5 +15,6 @@ public record MindmapDto(
         String title,
         String description,
         String status ,
-        String visibility
+        String visibility,
+        OffsetDateTime createdAt
 ) {}

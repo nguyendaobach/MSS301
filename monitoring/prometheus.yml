@@ -1,0 +1,91 @@
+global:
+  scrape_interval: 10s
+  evaluation_interval: 10s
+
+scrape_configs:
+  # (tuỳ chọn) Tự theo dõi Prometheus
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # (tuỳ chọn) Gateway – nếu bạn muốn xem metrics của chính gateway
+  - job_name: 'api-gateway'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['host.docker.internal:8080']
+        labels:
+          service: 'api-gateway'
+
+  # 8081
+  - job_name: 'quiz-service'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['host.docker.internal:8081']
+        labels:
+          service: 'quiz-service'
+
+  
+
+  # 8803
+  - job_name: 'premium-service'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['host.docker.internal:8803']
+        labels:
+          service: 'premium-service'
+
+  # 8084
+  - job_name: 'mindmap-service'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['host.docker.internal:8084']
+        labels:
+          service: 'mindmap-service'
+
+  # 8085
+  - job_name: 'identity-service'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['host.docker.internal:8085']
+        labels:
+          service: 'identity-service'
+
+  # (nếu có 8806 cho ownership-service, bật khối dưới)
+  # - job_name: 'ownership-service'
+  #   metrics_path: /actuator/prometheus
+  #   static_configs:
+  #     - targets: ['host.docker.internal:8806']
+  #       labels:
+  #         service: 'ownership-service'
+
+  # 8087
+  - job_name: 'ai-service'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['host.docker.internal:8087']
+        labels:
+          service: 'ai-service'
+
+  # 8088
+  - job_name: 'document-service'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['host.docker.internal:8088']
+        labels:
+          service: 'document-service'
+
+  # 8089
+  - job_name: 'vector-service'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['host.docker.internal:8089']
+        labels:
+          service: 'vector-service'
+
+  # 8810
+  - job_name: 'admin-service'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['host.docker.internal:8810']
+        labels:
+          service: 'admin-service'

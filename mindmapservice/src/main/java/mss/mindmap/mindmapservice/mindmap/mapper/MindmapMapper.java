@@ -9,6 +9,7 @@ import org.mapstruct.*;
 public interface MindmapMapper {
 
     @Mapping(target = "mindMapId", source = "mindmap.id")
+    @Mapping(target = "createdAt", source = "createdAt")
     MindmapDto toDto(Mindmap mindmap);
 
 

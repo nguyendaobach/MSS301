@@ -1,4 +1,4 @@
-package mss.mindmap.mindmapservice.mindmap.config;
+package com.mss301.premiumservice.config;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
