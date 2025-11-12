@@ -15,7 +15,7 @@ public class RoleAccessMatcher {
             // Identity Service - User Profile Management
             // GET - View own profile (All authenticated users)
             new RoleAccessRule(HttpMethod.GET,
-                    List.of("/identity/users/profile"),
+                    List.of("/identity/users/profile", "/premium/**"),
                     List.of("STUDENT", "TEACHER", "ADMIN", "SUPER_ADMIN")),
 
             // PUT - Update own profile (All authenticated users)
@@ -127,7 +127,7 @@ public class RoleAccessMatcher {
                     List.of("STUDENT", "TEACHER", "ADMIN")),
             // POST - Generate mindmap with AI
             new RoleAccessRule(HttpMethod.POST,
-                    List.of("/ai/ai/**"),
+                    List.of("/ai/ai/**", "/premium/**"),
                     List.of("STUDENT", "TEACHER", "ADMIN"))
     );
 
