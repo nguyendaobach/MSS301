@@ -41,7 +41,15 @@ public class JwtUtils {
     }
 
     public String extractEmail(String token) {
-        return extractClaim(token, claims -> claims.get("email", String.class));
+        return extractClaim(token, claims -> {
+            // Thử lấy từ "sub" trước (chuẩn JWT)
+            String sub = claims.getSubject();
+            if (sub != null && !sub.isEmpty()) {
+                return sub;
+            }
+            // Nếu không có, thử lấy từ "email"
+            return claims.get("email", String.class);
+        });
     }
 
     public String extractRole(String token) {
@@ -51,8 +59,11 @@ public class JwtUtils {
             if (roles != null && !roles.isEmpty()) {
                 // Lấy role đầu tiên và loại bỏ prefix "ROLE_" nếu có
                 String role = roles.get(0);
-                return role.startsWith("ROLE_") ? role.substring(5) : role;
+                String cleanRole = role.startsWith("ROLE_") ? role.substring(5) : role;
+                log.debug("Extracted role: {} (original: {})", cleanRole, role);
+                return cleanRole;
             }
+            log.warn("No roles found in token");
             return null;
         });
     }
@@ -63,10 +74,13 @@ public class JwtUtils {
             List<String> roles = claims.get("roles", List.class);
             if (roles != null) {
                 // Loại bỏ prefix "ROLE_" từ tất cả roles
-                return roles.stream()
+                List<String> cleanRoles = roles.stream()
                         .map(role -> role.startsWith("ROLE_") ? role.substring(5) : role)
                         .toList();
+                log.debug("Extracted roles: {} (original: {})", cleanRoles, roles);
+                return cleanRoles;
             }
+            log.warn("No roles found in token");
             return List.of();
         });
     }

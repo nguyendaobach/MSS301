@@ -3,6 +3,7 @@ package com.mss301.adminservice.service;
 import com.mss301.adminservice.dto.ResponseApi;
 import com.mss301.adminservice.dto.request.CreateUserRequest;
 import com.mss301.adminservice.dto.request.UpdateUserRequest;
+import com.mss301.adminservice.dto.response.RoleResponse;
 import com.mss301.adminservice.dto.response.UserResponse;
 import com.mss301.adminservice.dto.response.UserStatsResponse;
 import com.mss301.adminservice.entity.Role;
@@ -194,6 +195,21 @@ public class AdminService implements IAdminService {
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseApi<List<RoleResponse>> getAllRoles() {
+        try {
+            List<RoleResponse> roles = roleRepository.findAll().stream()
+                    .map(this::convertToRoleResponse)
+                    .collect(Collectors.toList());
+            return new ResponseApi<>(HttpStatus.OK.value(),
+                    "Lấy danh sách roles thành công", roles);
+        } catch (Exception e) {
+            return new ResponseApi<>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    "Lỗi khi lấy danh sách roles: " + e.getMessage(), null);
+        }
+    }
+
     private UserResponse convertToUserResponse(User user) {
         return UserResponse.builder()
                 .id(user.getId())
@@ -204,6 +220,15 @@ public class AdminService implements IAdminService {
                 .status(user.getStatus() != null ? user.getStatus().name() : null)
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
+                .build();
+    }
+
+    private RoleResponse convertToRoleResponse(Role role) {
+        return RoleResponse.builder()
+                .id(role.getId())
+                .code(role.getCode())
+                .name(role.getName())
+                .description("Role: " + role.getName())
                 .build();
     }
 }

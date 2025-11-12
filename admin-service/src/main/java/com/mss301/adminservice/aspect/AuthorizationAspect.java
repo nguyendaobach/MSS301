@@ -28,6 +28,8 @@ public class AuthorizationAspect {
     public void checkRolePermission(JoinPoint joinPoint) {
         HttpServletRequest request = getCurrentRequest();
         String userRole = (String) request.getAttribute("role");
+        @SuppressWarnings("unchecked")
+        List<String> userRoles = (List<String>) request.getAttribute("roles");
 
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
@@ -35,12 +37,34 @@ public class AuthorizationAspect {
 
         String[] allowedRoles = requireRole.value();
 
-        if (userRole == null || !Arrays.asList(allowedRoles).contains(userRole)) {
-            log.warn("Access denied. User role: {}, Required roles: {}", userRole, Arrays.toString(allowedRoles));
+        log.info("Authorization check - User role: {}, User roles: {}, Required roles: {}",
+                 userRole, userRoles, Arrays.toString(allowedRoles));
+
+        // Kiểm tra xem user có ít nhất một role được phép không
+        boolean hasPermission = false;
+
+        // Kiểm tra từ single role
+        if (userRole != null && Arrays.asList(allowedRoles).contains(userRole)) {
+            hasPermission = true;
+        }
+
+        // Kiểm tra từ danh sách roles
+        if (!hasPermission && userRoles != null) {
+            for (String role : userRoles) {
+                if (Arrays.asList(allowedRoles).contains(role)) {
+                    hasPermission = true;
+                    break;
+                }
+            }
+        }
+
+        if (!hasPermission) {
+            log.warn("Access denied. User role: {}, User roles: {}, Required roles: {}",
+                     userRole, userRoles, Arrays.toString(allowedRoles));
             throw new UnauthorizedException("You don't have permission to access this resource. Required role: " + Arrays.toString(allowedRoles));
         }
 
-        log.debug("Role check passed for user with role: {}", userRole);
+        log.debug("Role check passed for user with role: {} (roles: {})", userRole, userRoles);
     }
 
     @Before("@annotation(com.mss301.adminservice.annotation.RequirePermission)")

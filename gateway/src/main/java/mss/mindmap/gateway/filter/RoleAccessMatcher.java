@@ -12,35 +12,41 @@ public class RoleAccessMatcher {
     private static final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     private static final List<RoleAccessRule> RULES = List.of(
-            // Admin Service - User Management
-            // GET - View users, stats (ADMIN, SUPER_ADMIN only)
+            // Identity Service - User Profile Management
+            // GET - View own profile (All authenticated users)
             new RoleAccessRule(HttpMethod.GET,
-                    List.of("/admin/users", "/admin/users/*", "/admin/users/role/*", "/admin/stats"),
-                    List.of("ADMIN", "SUPER_ADMIN")),
+                    List.of("/identity/users/profile"),
+                    List.of("STUDENT", "TEACHER", "ADMIN", "SUPER_ADMIN")),
 
-            // GET - Health check and auth info (ADMIN, SUPER_ADMIN)
-            new RoleAccessRule(HttpMethod.GET,
-                    List.of("/admin/health", "/admin/auth/**"),
-                    List.of("ADMIN", "SUPER_ADMIN")),
-
-            // POST - Create users, extract roles (ADMIN, SUPER_ADMIN)
-            new RoleAccessRule(HttpMethod.POST,
-                    List.of("/admin/users", "/admin/auth/roles/extract"),
-                    List.of("ADMIN", "SUPER_ADMIN")),
-
-            // PUT - Update users (ADMIN, SUPER_ADMIN)
+            // PUT - Update own profile (All authenticated users)
             new RoleAccessRule(HttpMethod.PUT,
-                    List.of("/admin/users/*"),
+                    List.of("/identity/users/profile", "/identity/users/change-password"),
+                    List.of("STUDENT", "TEACHER", "ADMIN", "SUPER_ADMIN")),
+
+            // Admin Service - All admin endpoints
+            // GET - All admin endpoints (ADMIN, SUPER_ADMIN)
+            new RoleAccessRule(HttpMethod.GET,
+                    List.of("/admin/**"),
                     List.of("ADMIN", "SUPER_ADMIN")),
 
-            // DELETE - Delete users (SUPER_ADMIN only - highest permission)
-            new RoleAccessRule(HttpMethod.DELETE,
-                    List.of("/admin/users/*"),
-                    List.of("SUPER_ADMIN")),
+            // POST - All admin endpoints (ADMIN, SUPER_ADMIN)
+            new RoleAccessRule(HttpMethod.POST,
+                    List.of("/admin/**"),
+                    List.of("ADMIN", "SUPER_ADMIN")),
 
-            // PATCH - Toggle user status (ADMIN, SUPER_ADMIN)
+            // PUT - All admin endpoints (ADMIN, SUPER_ADMIN)
+            new RoleAccessRule(HttpMethod.PUT,
+                    List.of("/admin/**"),
+                    List.of("ADMIN", "SUPER_ADMIN")),
+
+            // PATCH - All admin endpoints (ADMIN, SUPER_ADMIN)
             new RoleAccessRule(HttpMethod.PATCH,
-                    List.of("/admin/users/*/toggle-status"),
+                    List.of("/admin/**"),
+                    List.of("ADMIN", "SUPER_ADMIN")),
+
+            // DELETE - Delete operations (SUPER_ADMIN only - highest permission)
+            new RoleAccessRule(HttpMethod.DELETE,
+                    List.of("/admin/**"),
                     List.of("ADMIN", "SUPER_ADMIN")),
 
             // Quiz Service
@@ -76,59 +82,53 @@ public class RoleAccessMatcher {
 
 
             // MindMap Service
-            //GET
+            // GET - View mindmaps
             new RoleAccessRule(HttpMethod.GET,
                     List.of("/mindmap/mindmap/**", "/mindmap/nodes/**", "/mindmap/edges/**"),
-                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
-            //GET
+                    List.of("STUDENT", "TEACHER", "ADMIN")),
+            // POST - Create mindmaps and events
             new RoleAccessRule(HttpMethod.POST,
-                    List.of("/mindmap/mindmap/**",
-                            "/mindmap/event/**"),
-                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
-            //GET
+                    List.of("/mindmap/mindmap/**", "/mindmap/event/**"),
+                    List.of("STUDENT", "TEACHER", "ADMIN")),
+            // PUT/PATCH - Update mindmaps
             new RoleAccessRule(HttpMethod.PUT,
                     List.of("/mindmap/mindmap/**"),
-                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
-            //GET
+                    List.of("STUDENT", "TEACHER", "ADMIN")),
+            new RoleAccessRule(HttpMethod.PATCH,
+                    List.of("/mindmap/mindmap/**"),
+                    List.of("STUDENT", "TEACHER", "ADMIN")),
+            // DELETE - Delete mindmaps
             new RoleAccessRule(HttpMethod.DELETE,
                     List.of("/mindmap/mindmap/**"),
-                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
+                    List.of("STUDENT", "TEACHER", "ADMIN")),
 
             // Document Service
-            //GET
+            // GET - View documents
             new RoleAccessRule(HttpMethod.GET,
                     List.of("/documents/documents/**"),
-                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
-            //GET
+                    List.of("STUDENT", "TEACHER", "ADMIN")),
+            // POST - Upload documents
             new RoleAccessRule(HttpMethod.POST,
-                    List.of("/documents/documents/****"),
-                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
-            //GET
+                    List.of("/documents/documents/**"),
+                    List.of("STUDENT", "TEACHER", "ADMIN")),
+            // PUT - Update documents
             new RoleAccessRule(HttpMethod.PUT,
                     List.of("/documents/documents/**"),
-                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
-            //GET
+                    List.of("STUDENT", "TEACHER", "ADMIN")),
+            // DELETE - Delete documents
             new RoleAccessRule(HttpMethod.DELETE,
                     List.of("/documents/documents/**"),
-                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
+                    List.of("STUDENT", "TEACHER", "ADMIN")),
 
             // AI Service
-            //GET
+            // GET - View AI history
             new RoleAccessRule(HttpMethod.GET,
                     List.of("/ai/ai/**"),
-                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
-            //GET
+                    List.of("STUDENT", "TEACHER", "ADMIN")),
+            // POST - Generate mindmap with AI
             new RoleAccessRule(HttpMethod.POST,
                     List.of("/ai/ai/**"),
-                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
-            //GET
-            new RoleAccessRule(HttpMethod.PUT,
-                    List.of("/documents/documents/**"),
-                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER")),
-            //GET
-            new RoleAccessRule(HttpMethod.DELETE,
-                    List.of("/documents/documents/**"),
-                    List.of("STUDENT", "TEACHER", "ADMIN", "VIEWER"))
+                    List.of("STUDENT", "TEACHER", "ADMIN"))
     );
 
     public boolean isAuthorized(String path, List<String> roles, HttpMethod method) {

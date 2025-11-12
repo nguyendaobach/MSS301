@@ -3,6 +3,7 @@ package com.mss301.adminservice.service;
 import com.mss301.adminservice.dto.ResponseApi;
 import com.mss301.adminservice.dto.request.CreateUserRequest;
 import com.mss301.adminservice.dto.request.UpdateUserRequest;
+import com.mss301.adminservice.dto.response.RoleResponse;
 import com.mss301.adminservice.dto.response.UserResponse;
 import com.mss301.adminservice.dto.response.UserStatsResponse;
 
@@ -53,11 +54,7 @@ public interface IAdminService {
      */
     ResponseApi<UserResponse> toggleUserStatus(UUID id);
 
-    /**
-     * Lấy danh sách người dùng theo role code
-     * @param roleCode Role code của người dùng (OWNER, EDITOR, VIEWER)
-     * @return ResponseApi chứa danh sách UserResponse
-     */
+
     ResponseApi<List<UserResponse>> getUsersByRole(String roleCode);
 
     /**
@@ -65,4 +62,10 @@ public interface IAdminService {
      * @return ResponseApi chứa UserStatsResponse
      */
     ResponseApi<UserStatsResponse> getUserStats();
+
+    /**
+     * Lấy danh sách tất cả các roles trong hệ thống
+     * @return ResponseApi chứa danh sách RoleResponse
+     */
+    ResponseApi<List<RoleResponse>> getAllRoles();
 }

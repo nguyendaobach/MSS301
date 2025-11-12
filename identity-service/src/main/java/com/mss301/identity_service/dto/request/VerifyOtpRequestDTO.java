@@ -18,5 +18,5 @@ public class VerifyOtpRequestDTO {
 
     @NotBlank(message = "OTP code is required")
     @Size(min = 6, max = 6, message = "OTP must be 6 digits")
-    private String otpCode;
+    private String otp;
 }

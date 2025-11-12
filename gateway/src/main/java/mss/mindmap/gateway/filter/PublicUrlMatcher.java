@@ -16,13 +16,15 @@ public class PublicUrlMatcher {
                     "/identity/auth/register",
                     "/identity/auth/register-with-otp",
                     "/identity/auth/verify-otp",
-                    "/identity/auth/introspect"
+                    "/identity/auth/introspect",
+                    "/identity/auth/**"
             )),
 
 
             new PublicRule(HttpMethod.GET, List.of(
                     // Swagger/OpenAPI documentation endpoints
                     "/quiz/v3/api-docs/**",
+                    "/identity/auth/role",
                     "/mindmap/v3/api-docs/**",
                     "/identity/v3/api-docs/**",
                     "/ownership/v3/api-docs/**",
