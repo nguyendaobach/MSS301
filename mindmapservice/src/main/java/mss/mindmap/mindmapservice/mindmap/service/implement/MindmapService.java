@@ -37,11 +37,11 @@ public class MindmapService implements IMindmapService {
     @Transactional
     public MindmapDto createMindmap(HttpServletRequest request, MindmapDto mindmapDto) {
         UUID userID = UUID.fromString(headerExtractor.getUserId(request).trim());
-        ResponseEntity<PremiumResponse> isPremium = premiumClient.getPremiumByUserId(userID.toString());
-        int countMindmap = mindmapRepository.countByUserId(userID);
-        if (isPremium.getBody() == null && countMindmap >= 3 ){
-            throw new IllegalArgumentException("User is not premium and has reached the limit of mindmaps: 3");
-        }
+//        ResponseEntity<PremiumResponse> isPremium = premiumClient.getPremiumByUserId(userID.toString());
+//        int countMindmap = mindmapRepository.countByUserId(userID);
+//        if (isPremium.getBody() == null && countMindmap >= 3 ){
+//            throw new IllegalArgumentException("User is not premium and has reached the limit of mindmaps: 3");
+//        }
         Mindmap mindmap = Mindmap.builder()
                 .title(mindmapDto.title())
                 .description(mindmapDto.description())
