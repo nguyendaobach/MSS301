@@ -386,6 +386,7 @@ public class UserServiceImpl implements UserService {
             profile.setFullName(user.getFullName());
             profile.setRole(user.getRole().getCode());
             profile.setStatus(user.getStatus());
+            profile.setUpdatedAt(OffsetDateTime.now());
 
             return ResponseApi.<UserProfileResponse>builder()
                     .status(HttpStatus.OK.value())
@@ -437,4 +438,5 @@ public class UserServiceImpl implements UserService {
         return roleRepository.findAll();
     }
 }
+
 
