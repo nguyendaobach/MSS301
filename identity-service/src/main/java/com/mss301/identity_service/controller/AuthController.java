@@ -35,6 +35,12 @@ public class AuthController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
+    @PostMapping("/register")
+    public ResponseEntity<ResponseApi<String>> register(@Valid @RequestBody RegisterRequestDTO request) {
+        ResponseApi<String> response = userService.register(request);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
     @PostMapping("/register-with-otp")
     public ResponseEntity<ResponseApi<String>> registerWithOtp(@Valid @RequestBody RegisterWithOtpRequestDTO request) {
         ResponseApi<String> response = userService.registerWithOtp(request);
