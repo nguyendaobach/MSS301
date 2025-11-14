@@ -177,11 +177,20 @@ public class MindMapServiceImpl implements MindMapService {
             4. Mỗi node label phải ngắn gọn, súc tích (tối đa 5-7 từ)
             5. Tạo tối thiểu 3 cấp độ (level) cho mindmap
             6. **QUAN TRỌNG**: Các node lá (node cuối cùng) phải có description CHI TIẾT, cung cấp nội dung cụ thể
+            7. **NẾU CÓ MINDMAP CŨ**: Tiếp tục từ cấu trúc hiện tại, giữ nguyên các node tốt, bổ sung và cải thiện
+            
+            QUY TẮC KHI CÓ MINDMAP HIỆN TẠI:
+            - **Giữ nguyên**: Các node có nội dung tốt và chính xác
+            - **Cải thiện**: Description của các node còn ngắn hoặc chưa đủ chi tiết
+            - **Thêm mới**: Các nhánh/node mới phù hợp với yêu cầu người dùng
+            - **Mở rộng**: Thêm children cho các node có thể phát triển thêm
+            - **Bảo toàn cấu trúc**: Giữ nguyên id, parent-children relationships của node cũ
+            - **Tăng chất lượng**: Thêm công thức KaTeX, ví dụ cụ thể vào description
             
             QUY TẮC VỀ NỘI DUNG CHI TIẾT:
             - Node gốc (level 0): Label ngắn gọn, description tổng quan
             - Node trung gian (level 1-2): Label ngắn gọn, description giải thích khái niệm
-            - **Node lá (level cuối)**: Label ngắn gọn, description CỰC KỲ CHI TIẾT:
+            - **Node lá (level cuối)**: Label ngắn gọn, description CHI TIẾT:
               * Giải thích đầy đủ khái niệm
               * Đưa ra ví dụ cụ thể (nếu có trong context)
               * Liệt kê các điểm quan trọng
@@ -257,6 +266,18 @@ public class MindMapServiceImpl implements MindMapService {
         // Add context
         prompt.append(context).append("\n\n");
 
+        // Add existing mindmap if provided
+        if (request.getExistingMindMapJson() != null && !request.getExistingMindMapJson().isBlank()) {
+            prompt.append("=== CẤU TRÚC MINDMAP HIỆN TẠI ===\n");
+            prompt.append("Đây là mindmap hiện tại của người dùng:\n");
+            prompt.append(request.getExistingMindMapJson()).append("\n\n");
+            prompt.append("Hãy TIẾP TỤC từ cấu trúc này. Bạn có thể:\n");
+            prompt.append("- Giữ nguyên các node tốt và bổ sung thêm node mới\n");
+            prompt.append("- Mở rộng các node hiện có bằng cách thêm children\n");
+            prompt.append("- Cải thiện description của các node nếu cần\n");
+            prompt.append("- Thêm các nhánh mới phù hợp với yêu cầu\n\n");
+        }
+
         // Add user requirements
         prompt.append("=== YÊU CẦU CỦA NGƯỜI DÙNG ===\n");
         prompt.append("Chủ đề: ").append(userQuery).append("\n\n");
@@ -277,8 +298,11 @@ public class MindMapServiceImpl implements MindMapService {
         }
 
         prompt.append("\n");
-        prompt.append("Hãy tạo mindmap dựa trên thông tin từ tài liệu trên, ");
-        prompt.append("tập trung vào yêu cầu của người dùng. ");
+        if (request.getExistingMindMapJson() != null && !request.getExistingMindMapJson().isBlank()) {
+            prompt.append("Hãy cải thiện và mở rộng mindmap hiện tại dựa trên thông tin từ tài liệu (nếu có) và yêu cầu của người dùng. ");
+        } else {
+            prompt.append("Hãy tạo mindmap mới dựa trên thông tin từ tài liệu (nếu có) và yêu cầu của người dùng. ");
+        }
         prompt.append("Trả về ĐÚNG format JSON như đã hướng dẫn.");
 
         return prompt.toString();
