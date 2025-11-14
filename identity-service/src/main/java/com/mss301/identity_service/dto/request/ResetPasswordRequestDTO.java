@@ -22,7 +22,7 @@ public class ResetPasswordRequestDTO {
     @NotBlank(message = "Mã OTP không được để trống")
     @Size(min = 6, max = 6, message = "Mã OTP phải có 6 ký tự")
     @Schema(description = "Mã OTP xác thực", example = "123456")
-    private String otpCode;
+    private String otp;
 
     @NotBlank(message = "Mật khẩu mới không được để trống")
     @Size(min = 6, message = "Mật khẩu phải có ít nhất 6 ký tự")

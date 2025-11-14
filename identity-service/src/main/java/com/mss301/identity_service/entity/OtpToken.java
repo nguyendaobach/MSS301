@@ -31,4 +31,8 @@ public class OtpToken {
 
     @Column(nullable = false)
     boolean used;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true)
+    OtpType otpType;
 }

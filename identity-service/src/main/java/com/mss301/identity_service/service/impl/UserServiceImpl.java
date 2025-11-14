@@ -5,30 +5,23 @@ import com.mss301.identity_service.dto.ResponseApi;
 import com.mss301.identity_service.dto.request.*;
 import com.mss301.identity_service.dto.response.LoginResponse;
 import com.mss301.identity_service.dto.response.TokenVerificationResponse;
-import com.mss301.identity_service.entity.Role;
-import com.mss301.identity_service.entity.Status;
-import com.mss301.identity_service.entity.User;
-import com.mss301.identity_service.entity.UserPrinciple;
+import com.mss301.identity_service.dto.response.UserProfileResponse;
+import com.mss301.identity_service.entity.*;
 import com.mss301.identity_service.repository.RoleRepository;
 import com.mss301.identity_service.repository.UserRepository;
-import com.mss301.identity_service.service.EmailService;
 import com.mss301.identity_service.service.OtpService;
 import com.mss301.identity_service.service.UserService;
-import io.jsonwebtoken.ExpiredJwtException;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -36,33 +29,33 @@ import java.util.*;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
     private final OtpService otpService;
-    private final EmailService emailService;
-    private final RoleRepository roleRepository;
-
-    // Lưu trữ tạm thời thông tin đăng ký chờ xác thực
-    private final Map<String, RegisterWithOtpRequestDTO> pendingRegistrations = new HashMap<>();
 
     @Override
+    @Transactional(readOnly = true)
     public ResponseApi<LoginResponse> login(LoginRequestDTO request) {
         try {
-            // Authenticate user
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
             UserPrinciple userPrinciple = (UserPrinciple) authentication.getPrincipal();
             User user = userPrinciple.getUser();
 
-            // Generate JWT token
+            if (user.getStatus() != Status.ACTIVE) {
+                return ResponseApi.<LoginResponse>builder()
+                        .status(HttpStatus.FORBIDDEN.value())
+                        .message("Account is not active. Please verify your email first.")
+                        .build();
+            }
+
             String token = jwtUtils.generateToken(userPrinciple);
 
-            // Create login response
-            LoginResponse response = new LoginResponse(
+            LoginResponse loginResponse = new LoginResponse(
                     user.getId(),
                     token,
                     user.getFullName(),
@@ -73,9 +66,10 @@ public class UserServiceImpl implements UserService {
             return ResponseApi.<LoginResponse>builder()
                     .status(HttpStatus.OK.value())
                     .message("Login successful")
-                    .data(response)
+                    .data(loginResponse)
                     .build();
         } catch (Exception e) {
+            log.error("Login failed for email: {}", request.getEmail(), e);
             return ResponseApi.<LoginResponse>builder()
                     .status(HttpStatus.UNAUTHORIZED.value())
                     .message("Invalid email or password")
@@ -84,85 +78,77 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public ResponseApi<String> register(RegisterRequestDTO request) {
-        // Check if email already exists
-        if (userRepository.existsByEmail(request.getEmail())) {
-            return ResponseApi.<String>builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message("Email already in use")
-                    .build();
-        }
-
         try {
-            // Create new user
-            User user = new User();
-            user.setEmail(request.getEmail());
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
-            user.setFullName(request.getFullName());
-            user.setStatus(Status.ACTIVE);
-            user.setCreatedAt(OffsetDateTime.now());
-            user.setUpdatedAt(OffsetDateTime.now());
+            if (userRepository.existsByEmail(request.getEmail())) {
+                return ResponseApi.<String>builder()
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .message("Email already exists")
+                        .build();
+            }
 
-            // Lấy role VIEWER mặc định
-            Role defaultRole = roleRepository.findByCode("STUDENT")
-                    .orElseGet(() -> {
-                        Role newRole = new Role();
-                        newRole.setCode("STUDENT");
-                        newRole.setName("Student");
-                        return roleRepository.save(newRole);
-                    });
+            Role studentRole = roleRepository.findByCode("ROLE_STUDENT")
+                    .orElseThrow(() -> new RuntimeException("Role STUDENT not found"));
 
-            user.setRole(defaultRole);
+            User user = User.builder()
+                    .email(request.getEmail())
+                    .password(passwordEncoder.encode(request.getPassword()))
+                    .fullName(request.getFullName())
+                    .role(studentRole)
+                    .status(Status.ACTIVE)
+                    .build();
 
             userRepository.save(user);
 
             return ResponseApi.<String>builder()
                     .status(HttpStatus.CREATED.value())
                     .message("User registered successfully")
-                    .data("Registration successful")
                     .build();
         } catch (Exception e) {
+            log.error("Registration failed", e);
             return ResponseApi.<String>builder()
                     .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .message("Error registering user: " + e.getMessage())
+                    .message("Registration failed: " + e.getMessage())
                     .build();
         }
     }
 
     @Override
+    @Transactional
     public ResponseApi<String> registerWithOtp(RegisterWithOtpRequestDTO request) {
-        // Kiểm tra email đã tồn tại chưa
-        if (userRepository.existsByEmail(request.getEmail())) {
-            return ResponseApi.<String>builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message("Email đã được sử dụng")
-                    .build();
-        }
-
         try {
-            // Lưu thông tin đăng ký vào bộ nhớ tạm thời
-            pendingRegistrations.put(request.getEmail(), request);
+            if (userRepository.existsByEmail(request.getEmail())) {
+                return ResponseApi.<String>builder()
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .message("Email already exists")
+                        .build();
+            }
 
-            // Tạo mã OTP
-            String otpCode = otpService.generateOtp(request.getEmail());
+            Role role = roleRepository.findById(request.getRoleId())
+                    .orElseThrow(() -> new RuntimeException("Role not found"));
 
-            // Gửi email chứa mã OTP
-            emailService.sendOtpEmail(request.getEmail(), otpCode);
-
-            return ResponseApi.<String>builder()
-                    .status(HttpStatus.OK.value())
-                    .message("Mã xác thực đã được gửi đến email của bạn")
-                    .data("Vui lòng kiểm tra email để lấy mã xác thực")
+            User user = User.builder()
+                    .email(request.getEmail())
+                    .password(passwordEncoder.encode(request.getPassword()))
+                    .fullName(request.getFullName())
+                    .role(role)
+                    .status(Status.INACTIVE)
                     .build();
-        } catch (MessagingException e) {
+
+            userRepository.save(user);
+
+            otpService.generateAndSendOtp(request.getEmail(), OtpType.REGISTRATION);
+
             return ResponseApi.<String>builder()
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .message("Lỗi khi gửi email: " + e.getMessage())
+                    .status(HttpStatus.CREATED.value())
+                    .message("Registration successful. Please check your email for OTP verification.")
                     .build();
         } catch (Exception e) {
+            log.error("Registration with OTP failed", e);
             return ResponseApi.<String>builder()
                     .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .message("Lỗi khi đăng ký người dùng: " + e.getMessage())
+                    .message("Registration failed: " + e.getMessage())
                     .build();
         }
     }
@@ -170,104 +156,58 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public ResponseApi<String> verifyRegistration(VerifyOtpRequestDTO request) {
-        // Xác thực mã OTP
-        boolean isValidOtp = otpService.validateOtp(request.getEmail(), request.getOtpCode());
-
-        if (!isValidOtp) {
-            return ResponseApi.<String>builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message("Mã OTP không hợp lệ hoặc đã hết hạn")
-                    .build();
-        }
-
-        // Lấy thông tin đăng ký từ bộ nhớ tạm thời
-        RegisterWithOtpRequestDTO registrationData = pendingRegistrations.get(request.getEmail());
-
-        if (registrationData == null) {
-            return ResponseApi.<String>builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message("Không tìm thấy thông tin đăng ký")
-                    .build();
-        }
-
         try {
-            // Tạo người dùng mới
-            User user = new User();
-            user.setEmail(registrationData.getEmail());
-            user.setPassword(passwordEncoder.encode(registrationData.getPassword()));
-            user.setFullName(registrationData.getFullName());
+            if (!otpService.verifyOtp(request.getEmail(), request.getOtp(), OtpType.REGISTRATION)) {
+                return ResponseApi.<String>builder()
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .message("Invalid or expired OTP")
+                        .build();
+            }
+
+            User user = userRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
             user.setStatus(Status.ACTIVE);
-            user.setCreatedAt(OffsetDateTime.now());
-            user.setUpdatedAt(OffsetDateTime.now());
-
-            // Lấy role VIEWER mặc định
-            Role defaultRole = roleRepository.findByCode("VIEWER")
-                    .orElseGet(() -> {
-                        Role newRole = new Role();
-                        newRole.setCode("VIEWER");
-                        newRole.setName("Viewer");
-                        return roleRepository.save(newRole);
-                    });
-
-            user.setRole(defaultRole);
-
             userRepository.save(user);
 
-            // Xóa thông tin đăng ký khỏi bộ nhớ tạm thời
-            pendingRegistrations.remove(request.getEmail());
-
             return ResponseApi.<String>builder()
-                    .status(HttpStatus.CREATED.value())
-                    .message("Đăng ký thành công")
-                    .data("Tài khoản đã được tạo thành công")
+                    .status(HttpStatus.OK.value())
+                    .message("Email verified successfully. You can now login.")
                     .build();
         } catch (Exception e) {
+            log.error("OTP verification failed", e);
             return ResponseApi.<String>builder()
                     .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .message("Lỗi khi đăng ký người dùng: " + e.getMessage())
+                    .message("Verification failed: " + e.getMessage())
                     .build();
         }
     }
 
     @Override
+    @Transactional
     public ResponseApi<String> resendOtp(String email) {
-        // Kiểm tra xem email đã đăng ký chưa
-        if (userRepository.existsByEmail(email)) {
-            return ResponseApi.<String>builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message("Email đã được đăng ký")
-                    .build();
-        }
-
-        // Kiểm tra xem email có trong danh sách chờ xác thực không
-        if (!pendingRegistrations.containsKey(email)) {
-            return ResponseApi.<String>builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message("Không tìm thấy thông tin đăng ký cho email này")
-                    .build();
-        }
-
         try {
-            // Tạo mã OTP mới
-            String otpCode = otpService.generateOtp(email);
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
 
-            // Gửi email chứa mã OTP
-            emailService.sendOtpEmail(email, otpCode);
+            if (user.getStatus() == Status.ACTIVE) {
+                return ResponseApi.<String>builder()
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .message("User is already verified")
+                        .build();
+            }
+
+            otpService.generateAndSendOtp(email, OtpType.REGISTRATION);
 
             return ResponseApi.<String>builder()
                     .status(HttpStatus.OK.value())
-                    .message("Mã xác thực mới đã được gửi đến email của bạn")
-                    .data("Vui lòng kiểm tra email để lấy mã xác thực")
-                    .build();
-        } catch (MessagingException e) {
-            return ResponseApi.<String>builder()
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .message("Lỗi khi gửi email: " + e.getMessage())
+                    .message("OTP sent successfully")
                     .build();
         } catch (Exception e) {
+            log.error("Resend OTP failed", e);
             return ResponseApi.<String>builder()
                     .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .message("Lỗi khi gửi lại mã OTP: " + e.getMessage())
+                    .message("Failed to resend OTP: " + e.getMessage())
                     .build();
         }
     }
@@ -276,71 +216,34 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public ResponseApi<TokenVerificationResponse> introspect(TokenVerificationRequestDTO request) {
         try {
-            String token = request.getToken();
-            boolean isValid = jwtUtils.validateToken(token);
+            boolean isValid = jwtUtils.validateToken(request.getToken());
 
-            TokenVerificationResponse.TokenVerificationResponseBuilder responseBuilder = TokenVerificationResponse.builder();
-
-            if (isValid) {
-                // Lấy thông tin từ token hợp lệ
-                String username = jwtUtils.extractUsername(token);
-                Date expiration = jwtUtils.extractExpiration(token);
-
-                TokenVerificationResponse tokenResponse = responseBuilder
-                        .valid(true)
-                        .username(username)
-                        .expiration(expiration)
-                        .message("Token hợp lệ")
-                        .build();
-
+            if (!isValid) {
                 return ResponseApi.<TokenVerificationResponse>builder()
-                        .status(HttpStatus.OK.value())
-                        .message("Token hợp lệ")
-                        .data(tokenResponse)
-                        .success(true)
-                        .build();
-            } else {
-                TokenVerificationResponse tokenResponse = responseBuilder
-                        .valid(false)
-                        .message("Token không hợp lệ")
-                        .build();
-
-                return ResponseApi.<TokenVerificationResponse>builder()
-                        .status(HttpStatus.BAD_REQUEST.value())
-                        .message("Token không hợp lệ")
-                        .data(tokenResponse)
-                        .success(false)
+                        .status(HttpStatus.UNAUTHORIZED.value())
+                        .message("Invalid or expired token")
+                        .data(new TokenVerificationResponse(false))
                         .build();
             }
-        } catch (ExpiredJwtException e) {
-            log.warn("Token đã hết hạn: {}", e.getMessage());
 
-            TokenVerificationResponse tokenResponse = TokenVerificationResponse.builder()
-                    .valid(false)
-                    .username(e.getClaims().getSubject())
-                    .expiration(e.getClaims().getExpiration())
-                    .message("Token đã hết hạn")
-                    .build();
+            String email = jwtUtils.extractUsername(request.getToken());
+            List<String> roles = jwtUtils.extractRoles(request.getToken());
+
+            TokenVerificationResponse response = new TokenVerificationResponse(true);
+            response.setEmail(email);
+            response.setRoles(roles);
 
             return ResponseApi.<TokenVerificationResponse>builder()
-                    .status(HttpStatus.UNAUTHORIZED.value())
-                    .message("Token đã hết hạn")
-                    .data(tokenResponse)
-                    .success(false)
+                    .status(HttpStatus.OK.value())
+                    .message("Token is valid")
+                    .data(response)
                     .build();
         } catch (Exception e) {
-            log.error("Lỗi xác thực token: {}", e.getMessage());
-
-            TokenVerificationResponse tokenResponse = TokenVerificationResponse.builder()
-                    .valid(false)
-                    .message("Lỗi xác thực token: " + e.getMessage())
-                    .build();
-
+            log.error("Token introspection failed", e);
             return ResponseApi.<TokenVerificationResponse>builder()
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .message("Lỗi xác thực token: " + e.getMessage())
-                    .data(tokenResponse)
-                    .success(false)
+                    .status(HttpStatus.UNAUTHORIZED.value())
+                    .message("Invalid token")
+                    .data(new TokenVerificationResponse(false))
                     .build();
         }
     }
@@ -348,50 +251,40 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public ResponseApi<List<User>> getUser() {
-        return ResponseApi.<List<User>>builder()
-                .status(HttpStatus.OK.value())
-                .message("Lấy danh sách người dùng thành công")
-                .data(userRepository.findAll())
-                .success(true)
-                .build();
+        try {
+            List<User> users = userRepository.findAll();
+            return ResponseApi.<List<User>>builder()
+                    .status(HttpStatus.OK.value())
+                    .message("Users retrieved successfully")
+                    .data(users)
+                    .build();
+        } catch (Exception e) {
+            log.error("Failed to get users", e);
+            return ResponseApi.<List<User>>builder()
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message("Failed to retrieve users: " + e.getMessage())
+                    .build();
+        }
     }
 
     @Override
+    @Transactional
     public ResponseApi<String> forgotPassword(ForgotPasswordRequestDTO request) {
-        // Kiểm tra email có tồn tại trong hệ thống không
-        if (!userRepository.existsByEmail(request.getEmail())) {
-            return ResponseApi.<String>builder()
-                    .status(HttpStatus.NOT_FOUND.value())
-                    .message("Email không tồn tại trong hệ thống")
-                    .build();
-        }
-
         try {
-            // Tạo mã OTP cho việc reset password
-            String otpCode = otpService.generateOtp(request.getEmail());
+            User user = userRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
 
-            // Gửi email chứa mã OTP
-            emailService.sendPasswordResetEmail(request.getEmail(), otpCode);
+            otpService.generateAndSendOtp(request.getEmail(), OtpType.PASSWORD_RESET);
 
             return ResponseApi.<String>builder()
                     .status(HttpStatus.OK.value())
-                    .message("Mã xác thực đặt lại mật khẩu đã được gửi đến email của bạn")
-                    .data("Vui lòng kiểm tra email để lấy mã xác thực")
-                    .success(true)
-                    .build();
-        } catch (MessagingException e) {
-            log.error("Lỗi khi gửi email reset password: {}", e.getMessage());
-            return ResponseApi.<String>builder()
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .message("Lỗi khi gửi email: " + e.getMessage())
-                    .success(false)
+                    .message("OTP sent to your email for password reset")
                     .build();
         } catch (Exception e) {
-            log.error("Lỗi khi xử lý quên mật khẩu: {}", e.getMessage());
+            log.error("Forgot password failed", e);
             return ResponseApi.<String>builder()
                     .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .message("Lỗi khi xử lý yêu cầu: " + e.getMessage())
-                    .success(false)
+                    .message("Failed to process forgot password: " + e.getMessage())
                     .build();
         }
     }
@@ -399,52 +292,151 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public ResponseApi<String> resetPassword(ResetPasswordRequestDTO request) {
-        // Xác thực mã OTP
-        boolean isValidOtp = otpService.validateOtp(request.getEmail(), request.getOtpCode());
-
-        if (!isValidOtp) {
-            return ResponseApi.<String>builder()
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .message("Mã OTP không hợp lệ hoặc đã hết hạn")
-                    .success(false)
-                    .build();
-        }
-
-        // Tìm user theo email
-        Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
-
-        if (userOptional.isEmpty()) {
-            return ResponseApi.<String>builder()
-                    .status(HttpStatus.NOT_FOUND.value())
-                    .message("Người dùng không tồn tại")
-                    .success(false)
-                    .build();
-        }
-
         try {
-            User user = userOptional.get();
+            if (!otpService.verifyOtp(request.getEmail(), request.getOtp(), OtpType.PASSWORD_RESET)) {
+                return ResponseApi.<String>builder()
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .message("Invalid or expired OTP")
+                        .build();
+            }
 
-            // Cập nhật mật khẩu mới
+            User user = userRepository.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
             user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-            user.setUpdatedAt(OffsetDateTime.now());
-
             userRepository.save(user);
-
-            log.info("Password reset successfully for user: {}", request.getEmail());
 
             return ResponseApi.<String>builder()
                     .status(HttpStatus.OK.value())
-                    .message("Đặt lại mật khẩu thành công")
-                    .data("Bạn có thể đăng nhập bằng mật khẩu mới")
-                    .success(true)
+                    .message("Password reset successfully")
                     .build();
         } catch (Exception e) {
-            log.error("Lỗi khi đặt lại mật khẩu: {}", e.getMessage());
+            log.error("Reset password failed", e);
             return ResponseApi.<String>builder()
                     .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .message("Lỗi khi đặt lại mật khẩu: " + e.getMessage())
-                    .success(false)
+                    .message("Failed to reset password: " + e.getMessage())
                     .build();
         }
     }
+
+    @Override
+    @Transactional
+    public ResponseApi<String> resendForgotPasswordOtp(String email) {
+        try {
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            otpService.generateAndSendOtp(email, OtpType.PASSWORD_RESET);
+
+            return ResponseApi.<String>builder()
+                    .status(HttpStatus.OK.value())
+                    .message("OTP sent successfully")
+                    .build();
+        } catch (Exception e) {
+            log.error("Resend forgot password OTP failed", e);
+            return ResponseApi.<String>builder()
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message("Failed to resend OTP: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ResponseApi<UserProfileResponse> getCurrentUserProfile(String email) {
+        try {
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            UserProfileResponse profile = new UserProfileResponse();
+            profile.setId(user.getId());
+            profile.setEmail(user.getEmail());
+            profile.setFullName(user.getFullName());
+            profile.setRole(user.getRole().getCode());
+            profile.setStatus(user.getStatus());
+            profile.setCreatedAt(user.getCreatedAt());
+            profile.setUpdatedAt(user.getUpdatedAt());
+            return ResponseApi.<UserProfileResponse>builder()
+                    .status(HttpStatus.OK.value())
+                    .message("Profile retrieved successfully")
+                    .data(profile)
+                    .build();
+        } catch (Exception e) {
+            log.error("Failed to get user profile", e);
+            return ResponseApi.<UserProfileResponse>builder()
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message("Failed to retrieve profile: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    @Override
+    @Transactional
+    public ResponseApi<UserProfileResponse> updateProfile(String email, UpdateProfileRequestDTO request) {
+        try {
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            user.setFullName(request.getFullName());
+            userRepository.save(user);
+
+            UserProfileResponse profile = new UserProfileResponse();
+            profile.setId(user.getId());
+            profile.setEmail(user.getEmail());
+            profile.setFullName(user.getFullName());
+            profile.setRole(user.getRole().getCode());
+            profile.setStatus(user.getStatus());
+            profile.setUpdatedAt(OffsetDateTime.now());
+
+            return ResponseApi.<UserProfileResponse>builder()
+                    .status(HttpStatus.OK.value())
+                    .message("Profile updated successfully")
+                    .data(profile)
+                    .build();
+        } catch (Exception e) {
+            log.error("Failed to update profile", e);
+            return ResponseApi.<UserProfileResponse>builder()
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message("Failed to update profile: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    @Override
+    @Transactional
+    public ResponseApi<String> changePassword(String email, ChangePasswordRequestDTO request) {
+        try {
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+                return ResponseApi.<String>builder()
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .message("Current password is incorrect")
+                        .build();
+            }
+
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            userRepository.save(user);
+
+            return ResponseApi.<String>builder()
+                    .status(HttpStatus.OK.value())
+                    .message("Password changed successfully")
+                    .build();
+        } catch (Exception e) {
+            log.error("Failed to change password", e);
+            return ResponseApi.<String>builder()
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                    .message("Failed to change password: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Role> getAllRole() {
+        return roleRepository.findAll();
+    }
 }
+
+

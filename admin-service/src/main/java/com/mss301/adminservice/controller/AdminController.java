@@ -4,6 +4,7 @@ import com.mss301.adminservice.annotation.RequireRole;
 import com.mss301.adminservice.dto.ResponseApi;
 import com.mss301.adminservice.dto.request.CreateUserRequest;
 import com.mss301.adminservice.dto.request.UpdateUserRequest;
+import com.mss301.adminservice.dto.response.RoleResponse;
 import com.mss301.adminservice.dto.response.UserResponse;
 import com.mss301.adminservice.dto.response.UserStatsResponse;
 import com.mss301.adminservice.service.IAdminService;
@@ -93,6 +94,14 @@ public class AdminController {
     @Operation(summary = "Get user statistics", description = "Retrieve user statistics (Admin only)")
     public ResponseEntity<ResponseApi<UserStatsResponse>> getUserStats() {
         ResponseApi<UserStatsResponse> response = adminService.getUserStats();
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @GetMapping("/roles")
+    @RequireRole({"ADMIN", "SUPER_ADMIN"})
+    @Operation(summary = "Get all roles", description = "Retrieve all available roles in the system (Admin only)")
+    public ResponseEntity<ResponseApi<List<RoleResponse>>> getAllRoles() {
+        ResponseApi<List<RoleResponse>> response = adminService.getAllRoles();
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 }

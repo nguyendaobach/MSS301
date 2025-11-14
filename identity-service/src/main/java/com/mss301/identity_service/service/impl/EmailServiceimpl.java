@@ -17,6 +17,21 @@ public class EmailServiceimpl implements EmailService {
 
     private final JavaMailSender mailSender;
 
+    @Override
+    @Async
+    public void sendEmail(String to, String subject, String message) throws MessagingException {
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(message, false);
+
+        mailSender.send(mimeMessage);
+        log.info("Email sent to: {}", to);
+    }
+
+    @Override
     @Async
     public void sendOtpEmail(String to, String otp) throws MessagingException {
         MimeMessage mimeMessage = mailSender.createMimeMessage();

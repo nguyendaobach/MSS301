@@ -41,8 +41,15 @@ public class MindMapServiceImpl implements MindMapService {
     @Value("${spring.ai.openai.api-key}")
     private String openaiApiKey;
 
-    @Value("${mindmap.rag.top-k:5}")
+    @Value("${mindmap.rag.top-k:10}")
     private int ragTopK;
+
+    @Value("${mindmap.max-depth}")
+    private Integer maxDepth;
+
+    @Value("${mindmap.min-nodes}")
+    private Integer minNodes;
+
 
     @Value("${mindmap.llm.model:gpt-4}")
     private String llmModel;
@@ -283,13 +290,8 @@ public class MindMapServiceImpl implements MindMapService {
         prompt.append("Chủ đề: ").append(userQuery).append("\n\n");
 
         // Add optional parameters
-        if (request.getMaxDepth() != null) {
-            prompt.append("Độ sâu tối đa: ").append(request.getMaxDepth()).append(" cấp\n");
-        }
-
-        if (request.getMinNodes() != null) {
-            prompt.append("Số lượng node tối thiểu: ").append(request.getMinNodes()).append("\n");
-        }
+        prompt.append("Độ sâu tối đa: ").append(request.getMaxDepth() == null ? maxDepth : request.getMaxDepth()).append(" cấp\n");
+        prompt.append("Số lượng node tối thiểu: ").append(request.getMinNodes() == null ? minNodes : request.getMinNodes()).append("\n");
 
         if (request.getFocusAreas() != null && !request.getFocusAreas().isEmpty()) {
             prompt.append("Các khía cạnh cần tập trung: ")

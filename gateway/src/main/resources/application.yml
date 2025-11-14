@@ -28,7 +28,7 @@ spring:
               enabled: true
               lower-case-service-id: true
           routes:
-            # 8801
+            # 8081
             - id: quiz-service
               uri: lb://quiz-service
               predicates:
@@ -36,30 +36,30 @@ spring:
               filters:
                 - RewritePath=${app.api-prefix}${app.service-prefix.quiz}/(?<segment>.*), /${segment}
 
-            # 8802
+            # 8082
             - id: payment-service
               uri: lb://payment-service
               predicates:
                 - Path=${app.api-prefix}${app.service-prefix.payment}/**
               filters:
                 - StripPrefix=2
-            #8803
+            #8083
             - id: premium-service
               uri: lb://premium-service
               predicates:
                 - Path=${app.api-prefix}${app.service-prefix.premium}/**
               filters:
-                - RewritePath=${app.api-prefix}/(?<segment>.*), /${segment}
+                - RewritePath=${app.api-prefix}${app.service-prefix.premium}/(?<segment>.*), /${segment}
 
-            # 8804
+            # 8084
             - id: mind-map-service
-              uri: lb://mindmapservice
+              uri: lb://mindmap-service
               predicates:
                 - Path=${app.api-prefix}${app.service-prefix.mindmap}/**
               filters:
                 - RewritePath=${app.api-prefix}${app.service-prefix.mindmap}/(?<segment>.*), /${segment}
 
-            #8805
+            #8085
             - id: identity-service
               uri: lb://identity-service
               predicates:
@@ -75,29 +75,21 @@ spring:
               filters:
                 - RewritePath=${app.api-prefix}${app.service-prefix.admin}/(?<segment>.*), /${segment}
 
-            # 8806
-            - id: ownership-service
-              uri: lb://ownership-service
-              predicates:
-                - Path=${app.api-prefix}/ownership/**
-              filters:
-                - RewritePath=${app.api-prefix}/ownership/(?<segment>.*), /${segment}
-
-            # 8807
+            # 8087
             - id: ai-service
               uri: lb://ai-service
               predicates:
                 - Path=${app.api-prefix}${app.service-prefix.ai}/**
               filters:
                 - RewritePath=${app.api-prefix}${app.service-prefix.ai}/(?<segment>.*), /${segment}
-            # 8808
+            # 8088
             - id: document-service
               uri: lb://document-service
               predicates:
                 - Path=${app.api-prefix}${app.service-prefix.documents}/**
               filters:
                 - RewritePath=${app.api-prefix}${app.service-prefix.documents}/(?<segment>.*), /${segment}
-            # 8809
+            # 8089
             - id: vector-service
               uri: lb://vector-service
               predicates:
@@ -135,3 +127,13 @@ eureka:
   client:
     service-url:
       defaultZone: http://eureka:123456@localhost:8761/eureka
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  prometheus:
+    metrics:
+      export:
+        enabled: true

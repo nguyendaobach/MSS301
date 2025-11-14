@@ -2,7 +2,7 @@ server:
   port: 8084
 spring:
   application:
-    name: mindmapservice
+    name: mindmap-service
   jpa:
     database: "POSTGRESQL"
     show-sql: true
@@ -15,26 +15,31 @@ spring:
 
   datasource:
     driverClassName: "org.postgresql.Driver"
-    url: jdbc:postgresql://localhost:5433/mindmapService
-    username: root
-    password: StrongP@ssword123
-
-#  datasource:
-#    driverClassName: "org.postgresql.Driver"
-#    url: "jdbc:postgresql://localhost:5432/Mss-Mindmap"
-#    username: "postgres"
-#    password: "12345678"
-
+    url: "jdbc:postgresql://localhost:5432/Mss-Mindmap"
+    username: "postgres"
+    password: "12345678"
 #  datasource:
 #    driverClassName: "org.postgresql.Driver"
 #    url: "jdbc:postgresql://localhost:5432/test"
 #    username: "postgres"
 #    password: "12345"
-
 eureka:
   client:
     service-url:
       defaultZone: http://eureka:123456@localhost:8761/eureka
 gateway:
   secret: 4391D97158194
+  url:
+    premium: "localhost:8803"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
 

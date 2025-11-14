@@ -16,9 +16,22 @@ public class WebClientConfiguration {
     CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowCredentials(true);
-        corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost:5173", "http://localhost:3000", "http://localhost:3001"));
+        corsConfiguration.setAllowedOrigins(Arrays.asList(
+            "http://localhost:5173", 
+            "http://localhost:3000", 
+            "http://localhost:3001",
+            "http://localhost:8080",
+            "http://localhost:8081",
+            "http://localhost:8084",
+            "http://localhost:8085",
+            "http://localhost:8087",
+            "http://localhost:8088",
+            "http://localhost:8089",
+            "http://localhost:8803",
+            "http://localhost:8810"
+        ));
         corsConfiguration.setAllowedHeaders(List.of("*"));
-        corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         corsConfiguration.setMaxAge(3600L);
         corsConfiguration.addExposedHeader("Authorization");
 

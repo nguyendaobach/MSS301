@@ -36,29 +36,39 @@
         </processorPath>
         <module name="mindmapservice" />
       </profile>
-      <profile name="Annotation profile for premium-service" enabled="true">
+      <profile name="Annotation profile for admin-service" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
+        </processorPath>
+        <module name="admin-service" />
+      </profile>
+      <profile name="Annotation profile for vector-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.40/lombok-1.18.40.jar" />
         </processorPath>
+        <module name="vector-service" />
         <module name="ownership-service" />
         <module name="identity-service" />
         <module name="premium-service" />
         <module name="gateway" />
         <module name="ai-service" />
+        <module name="document-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="config" target="17" />
-      <module name="document-service" target="17" />
       <module name="eureka-service" target="17" />
-      <module name="vector-service" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="admin-service" options="-parameters" />
       <module name="ai-service" options="-parameters" />
       <module name="config" options="-parameters" />
       <module name="document-service" options="-parameters" />

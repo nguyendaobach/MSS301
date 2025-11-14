@@ -22,7 +22,7 @@ public class Role {
     UUID id;
 
     @Column(name = "code", nullable = false)
-    String code; // OWNER|EDITOR|VIEWER
+    String code;
 
     @Column(name = "name", nullable = false)
     String name;

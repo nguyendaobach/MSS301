@@ -33,6 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Public endpoints - no authentication required
         if (path.startsWith("/health") ||
+            path.startsWith("/actuator") ||
             path.contains("/swagger-ui") ||
             path.contains("/v3/api-docs") ||
             path.contains("/swagger-resources") ||
@@ -57,15 +58,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String userId = jwtUtils.extractUserId(token);
             String email = jwtUtils.extractEmail(token);
             String role = jwtUtils.extractRole(token);
+            List<String> roles = jwtUtils.extractRoles(token);
             List<String> permissions = jwtUtils.extractPermissions(token);
+
+            log.info("Authenticating user - Email: {}, UserId: {}, Role: {}, Roles: {}, Permissions: {}",
+                     email, userId, role, roles, permissions);
 
             // Set user info in request attributes for later use
             request.setAttribute("userId", userId);
             request.setAttribute("email", email);
             request.setAttribute("role", role);
+            request.setAttribute("roles", roles);
             request.setAttribute("permissions", permissions);
 
-            log.debug("Authenticated user: {} with role: {} (permissions: {})", email, role, permissions);
+            log.debug("Authenticated user: {} with role: {} (all roles: {}, permissions: {})",
+                      email, role, roles, permissions);
 
             filterChain.doFilter(request, response);
 

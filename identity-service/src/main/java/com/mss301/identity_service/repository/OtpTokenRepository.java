@@ -1,6 +1,7 @@
 package com.mss301.identity_service.repository;
 
 import com.mss301.identity_service.entity.OtpToken;
+import com.mss301.identity_service.entity.OtpType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,5 +13,9 @@ import java.util.UUID;
 public interface OtpTokenRepository extends JpaRepository<OtpToken, UUID> {
     Optional<OtpToken> findByEmailAndOtpCodeAndUsedFalseAndExpiryDateAfter(
             String email, String otpCode, LocalDateTime now);
+
+    Optional<OtpToken> findByEmailAndOtpCodeAndOtpTypeAndUsedFalseAndExpiryDateAfter(
+            String email, String otpCode, OtpType otpType, LocalDateTime now);
+
     Optional<OtpToken> findTopByEmailOrderByExpiryDateDesc(String email);
 }

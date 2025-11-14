@@ -14,6 +14,6 @@ import java.util.List;
 @FeignClient(name = "vector-service", url = "${vector.service.url}")
 public interface VectorServiceClient {
 
-    @PostMapping("/api/vectors/retrieve")
+    @PostMapping("/vectors/retrieve")
     ApiResponse<List<RetrievedChunkDto>> retrieveChunks(@RequestBody RetrievalRequest request);
 }
