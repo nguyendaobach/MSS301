@@ -168,15 +168,39 @@ public class MindMapServiceImpl implements MindMapService {
     private String buildSystemPrompt() {
         return """
             Bạn là chuyên gia tạo mindmap chuyên nghiệp. Nhiệm vụ của bạn là phân tích thông tin 
-            và tạo cấu trúc mindmap logic, rõ ràng, dễ hiểu.
+            và tạo cấu trúc mindmap logic, rõ ràng, dễ hiểu với nội dung chi tiết.
             
             NGUYÊN TẮC QUAN TRỌNG:
-            1. CHỈ sử dụng thông tin từ context được cung cấp
-            2. KHÔNG thêm bất kỳ thông tin nào từ kiến thức chung của bạn
-            3. Nếu context không đủ thông tin, hãy tạo mindmap dựa trên những gì có
-            4. Tổ chức thông tin theo cấu trúc phân cấp rõ ràng
-            5. Mỗi node phải ngắn gọn, súc tích (tối đa 5-7 từ)
-            6. Tạo tối thiểu 3 cấp độ (level) cho mindmap
+            1. CHỈ sử dụng thông tin từ context được cung cấp (nếu có context)
+            2. Nếu không có context, sử dụng kiến thức chung để tạo mindmap chất lượng
+            3. Tổ chức thông tin theo cấu trúc phân cấp rõ ràng
+            4. Mỗi node label phải ngắn gọn, súc tích (tối đa 5-7 từ)
+            5. Tạo tối thiểu 3 cấp độ (level) cho mindmap
+            6. **QUAN TRỌNG**: Các node lá (node cuối cùng) phải có description CHI TIẾT, cung cấp nội dung cụ thể
+            
+            QUY TẮC VỀ NỘI DUNG CHI TIẾT:
+            - Node gốc (level 0): Label ngắn gọn, description tổng quan
+            - Node trung gian (level 1-2): Label ngắn gọn, description giải thích khái niệm
+            - **Node lá (level cuối)**: Label ngắn gọn, description CỰC KỲ CHI TIẾT:
+              * Giải thích đầy đủ khái niệm
+              * Đưa ra ví dụ cụ thể (nếu có trong context)
+              * Liệt kê các điểm quan trọng
+              * Công thức toán học (nếu có) - viết dưới dạng KaTeX
+              * Độ dài description cho node lá: 100-300 từ
+            
+            QUY TẮC VỀ CÔNG THỨC TOÁN HỌC (KaTeX):
+            - Công thức inline: Bọc trong $...$
+              Ví dụ: "Công thức $E = mc^2$ cho năng lượng"
+            - Công thức block: Bọc trong $$...$$
+              Ví dụ: "Phương trình: $$\\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$$"
+            - Sử dụng ký hiệu LaTeX chuẩn:
+              * Phân số: \\frac{tử}{mẫu}
+              * Căn bậc hai: \\sqrt{x}
+              * Mũ: x^2, x^{n+1}
+              * Chỉ số dưới: x_i, x_{n-1}
+              * Tích phân: \\int, \\sum, \\prod
+              * Ký hiệu Hy Lạp: \\alpha, \\beta, \\gamma, \\Delta, \\pi
+              * Ma trận: \\begin{bmatrix} a & b \\\\ c & d \\end{bmatrix}
             
             FORMAT OUTPUT - QUAN TRỌNG:
             Trả về ĐÚNG format JSON sau, không thêm text nào khác:
@@ -186,19 +210,27 @@ public class MindMapServiceImpl implements MindMapService {
               "nodes": [
                 {
                   "id": "node_1",
-                  "label": "Tên node",
+                  "label": "Tên node ngắn gọn",
                   "level": 0,
                   "parent": null,
                   "children": ["node_2", "node_3"],
-                  "description": "Mô tả chi tiết node này (optional)"
+                  "description": "Mô tả tổng quan về chủ đề chính"
                 },
                 {
                   "id": "node_2",
-                  "label": "Node con cấp 1",
+                  "label": "Topic chính",
                   "level": 1,
                   "parent": "node_1",
                   "children": ["node_4", "node_5"],
-                  "description": "Mô tả"
+                  "description": "Giải thích về topic này, vai trò trong chủ đề chính"
+                },
+                {
+                  "id": "node_4",
+                  "label": "Chi tiết cụ thể",
+                  "level": 2,
+                  "parent": "node_2",
+                  "children": [],
+                  "description": "NỘI DUNG CỰC KỲ CHI TIẾT: \\n\\n**Định nghĩa**: [Giải thích đầy đủ khái niệm]\\n\\n**Công thức**: $$công_thức_KaTeX$$\\n\\n**Ví dụ**: [Ví dụ cụ thể]\\n\\n**Ứng dụng**: [Liệt kê các ứng dụng thực tế]\\n\\n**Lưu ý**: [Các điểm quan trọng cần nhớ]"
                 }
               ]
             }
@@ -206,10 +238,12 @@ public class MindMapServiceImpl implements MindMapService {
             LƯU Ý:
             - Level 0: Root node (1 node)
             - Level 1: Main topics (3-5 nodes)
-            - Level 2+: Sub-topics
+            - Level 2+: Sub-topics với description CHI TIẾT
             - Mỗi node phải có id duy nhất
             - Parent phải tham chiếu đến id của node cha
             - Children là mảng các id của node con
+            - Node lá (children rỗng) PHẢI có description dài và chi tiết
+            - Sử dụng KaTeX cho TẤT CẢ công thức toán học
             """;
     }
 
